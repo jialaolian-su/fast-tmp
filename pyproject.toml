@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "fast-tmp"
+version = "0.1.0"
+description = ""
+authors = ["chise <chise123@live.com>"]
+license = "GPL"
+
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.15.0"
+fastapi = "^0.61.2"
+tortoise-orm = "^0.16.18"
+aerich = "^0.4.1"
+
+[tool.poetry.dev-dependencies]
+flake8 = "*"
+isort = "*"
+black = "*"
+pytest = "*"
+pytest-xdist = "*"
+pytest-cov = "*"
+pytest-asyncio = "*"
+asynctest = "*"
+bandit = "*"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[[tool.poetry.source]]
+url = "https://mirrors.aliyun.com/pypi/simple/"
+name = "aliyun"
+default = true
+
