@@ -1,6 +1,7 @@
 checkfiles = fast_tmp/ tests/ conftest.py
 black_opts = -l 100 -t py38
 py_warn = PYTHONDEVMODE=1
+test_settings = SETTINGS_MODULE=tests.settings
 
 help:
 	@echo "fast-tmp development makefile"
@@ -29,4 +30,4 @@ check: deps
 	bandit -x test -r $(checkfiles)
 
 test: deps
-	$(py_warn) py.test
+	$(py_warn) $(test_settings) py.test

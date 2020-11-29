@@ -802,10 +802,13 @@ type = "legacy"
 url = "https://mirrors.aliyun.com/pypi/simple"
 reference = "aliyun"
 
+[extras]
+dbdrivers = []
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "ffa8fa1282ca5ba4becbba53938e8075f614084a9d2d9b24397462391e1b56f9"
+content-hash = "663f6654bcd89302a0142d0a7c5dc555c15058851610d1b76512ef8a31807b4c"
 
 [metadata.files]
 aiosqlite = [

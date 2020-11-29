@@ -3,9 +3,11 @@ name = "fast-tmp"
 version = "0.1.0"
 description = "为fastapi项目开发做准备"
 authors = ["chise <chise123@live.com>"]
-license = "GPL"
+license = "Apache-2.0"
+repository = "https://github.com/Chise1/fast-tmp"
 packages = [
-    { include = "fast_tmp" }
+    { include = "fast_tmp" },
+    { include = "cache" }
 ]
 include = ["LICENSE", "README.md"]
 
@@ -32,6 +34,8 @@ bandit = "*"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.extras]
+dbdrivers = ["aioredis"]
 
 [[tool.poetry.source]]
 url = "https://mirrors.aliyun.com/pypi/simple/"
