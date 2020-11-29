@@ -1,10 +1,13 @@
 [tool.poetry]
 name = "fast-tmp"
 version = "0.1.0"
-description = ""
+description = "为fastapi项目开发做准备"
 authors = ["chise <chise123@live.com>"]
 license = "GPL"
-
+packages = [
+    { include = "fast_tmp" }
+]
+include = ["LICENSE", "README.md"]
 
 
 [tool.poetry.dependencies]
@@ -12,7 +15,6 @@ python = "^3.7"
 python-dotenv = "^0.15.0"
 fastapi = "^0.61.2"
 tortoise-orm = "^0.16.18"
-aerich = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
@@ -36,3 +38,7 @@ url = "https://mirrors.aliyun.com/pypi/simple/"
 name = "aliyun"
 default = true
 
+#启动脚本
+
+[tool.poetry.scripts]
+fast-tmp = "fast_tmp.cli:main"

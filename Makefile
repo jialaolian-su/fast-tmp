@@ -1,9 +1,9 @@
-checkfiles = src/ tests/
+checkfiles = fast_tmp/ tests/
 black_opts = -l 100 -t py38
 py_warn = PYTHONDEVMODE=1
 
 help:
-	@echo "src development makefile"
+	@echo "fast-tmp development makefile"
 	@echo
 	@echo  "usage: make <target>"
 	@echo  "Targets:"
