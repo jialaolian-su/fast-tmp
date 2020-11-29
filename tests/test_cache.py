@@ -1,6 +1,6 @@
 import asyncio
 
-from cache import close, init, get_client
+from cache import close, get_client, init
 
 
 async def base():
@@ -11,5 +11,7 @@ async def base():
     value = await redis.get("my-key", encoding="utf-8")
     print(value)
     await close()
+
+
 def test_cache():
     asyncio.run(base())

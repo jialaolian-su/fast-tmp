@@ -1,5 +1,7 @@
 from tortoise import fields, models
 
+from fast_tmp.utils.password import make_password, verify_password
+
 
 class AbstractModel(models.Model):
     created_time = fields.DatetimeField(auto_now_add=True)
@@ -8,20 +10,17 @@ class AbstractModel(models.Model):
         abstract = True
 
 
-from fast_tmp.utils.password import make_password, verify_password
-
-
 class Permission(AbstractModel):
     name = fields.CharField(max_length=255)
     codename = fields.CharField(max_length=100)
     users: fields.ManyToManyRelation["User"]
+    groups: fields.ManyToManyRelation["Group"]
 
 
 class Group(AbstractModel):
     name = fields.CharField(max_length=150, unique=True)
     permissions = fields.ManyToManyField("models.Permission", related_name="groups")
     users: fields.ManyToManyRelation["User"]
-    groups: fields.ManyToManyRelation["Group"]
 
 
 # todo:测试是否有必要增加ManyToManyRelation字段

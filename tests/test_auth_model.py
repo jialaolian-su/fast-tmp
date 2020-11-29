@@ -1,9 +1,12 @@
 from tortoise.contrib import test
+
 from fast_tmp.models import Group, Permission, User
+
 
 class TestAuth(test.TestCase):
     def test_something(self):
         pass
+
     async def test_perm(self):
         p1 = await Permission.create(name="is active", codename="is_active")
         g1 = await Group.create(name="group1")
