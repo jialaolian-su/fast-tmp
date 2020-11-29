@@ -1,4 +1,4 @@
-checkfiles = fast_tmp/ tests/
+checkfiles = fast_tmp/ tests/ conftest.py
 black_opts = -l 100 -t py38
 py_warn = PYTHONDEVMODE=1
 
