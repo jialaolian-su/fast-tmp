@@ -1,8 +1,6 @@
-import asyncio
 import aioredis
 from typing import Optional
 from fast_tmp import settings
-
 from aioredis import Redis
 
 # todo:考虑使用多种缓存后端
