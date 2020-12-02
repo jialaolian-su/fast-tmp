@@ -18,6 +18,7 @@ python-dotenv = "^0.15.0"
 fastapi = "^0.61.2"
 tortoise-orm = "^0.16.18"
 typer = "^0.3.2"
+uvicorn = "^0.12.3"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
@@ -29,14 +30,14 @@ pytest-cov = "*"
 pytest-asyncio = "*"
 asynctest = "*"
 bandit = "*"
-
+aerich = { git = "https://github.com/Chise1/aerich.git", branch = "dev" }
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.extras]
-dbdrivers = ["aioredis"]
+dbdrivers = ["aioredis", "sentry-sdk"]
 
 [[tool.poetry.source]]
 url = "https://mirrors.aliyun.com/pypi/simple/"
