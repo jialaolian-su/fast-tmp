@@ -1,4 +1,27 @@
 [[package]]
+name = "aerich"
+version = "0.4.1"
+description = "A database migrations tool for Tortoise ORM."
+category = "dev"
+optional = false
+python-versions = "^3.7"
+develop = false
+
+[package.dependencies]
+click = "*"
+pydantic = "*"
+tortoise-orm = "*"
+
+[package.extras]
+dbdrivers = ["aiomysql", "asyncpg"]
+
+[package.source]
+type = "git"
+url = "https://github.com/Chise1/aerich.git"
+reference = "dev"
+resolved_reference = "34a135b5fbcf7afb9c4d8d31c3e965a5647d285d"
+
+[[package]]
 name = "aiosqlite"
 version = "0.16.0"
 description = "asyncio bridge to the standard sqlite3 module"
@@ -637,6 +660,22 @@ url = "https://mirrors.aliyun.com/pypi/simple"
 reference = "aliyun"
 
 [[package]]
+name = "python-multipart"
+version = "0.0.5"
+description = "A streaming multipart parser for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = ">=1.4.0"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
+[[package]]
 name = "pytz"
 version = "2020.4"
 description = "World timezone definitions, modern and historical"
@@ -679,7 +718,7 @@ reference = "aliyun"
 name = "six"
 version = "1.15.0"
 description = "Python 2 and 3 compatibility utilities"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
@@ -864,9 +903,10 @@ dbdrivers = []
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "fb7ef9b8eaaa919a5a833b9e14b91116d20671c93a6ab2c7c711890f2a2e26fb"
+content-hash = "09601881c8c3988ddd2159777feb8ac37330d9ac7374db4f1c7feb21cf9da3b7"
 
 [metadata.files]
+aerich = []
 aiosqlite = [
     {file = "aiosqlite-0.16.0-py3-none-any.whl", hash = "sha256:0e5b8465b0b6aa7f2b0a1fa7f3af53216fcea1947f524b658bd4b4696e72f1b7"},
     {file = "aiosqlite-0.16.0.tar.gz", hash = "sha256:d014ef07fbc523b2d195fc17cf35982285e3220eb73c1068d5df37b569950ea8"},
@@ -1073,6 +1113,9 @@ pytest-xdist = [
 python-dotenv = [
     {file = "python-dotenv-0.15.0.tar.gz", hash = "sha256:587825ed60b1711daea4832cf37524dfd404325b7db5e25ebe88c495c9f807a0"},
     {file = "python_dotenv-0.15.0-py2.py3-none-any.whl", hash = "sha256:0c8d1b80d1a1e91717ea7d526178e3882732420b03f08afea0406db6402e220e"},
+]
+python-multipart = [
+    {file = "python-multipart-0.0.5.tar.gz", hash = "sha256:f7bb5f611fc600d15fa47b3974c8aa16e93724513b49b5f95c81e6624c83fa43"},
 ]
 pytz = [
     {file = "pytz-2020.4-py2.py3-none-any.whl", hash = "sha256:5c55e189b682d420be27c6995ba6edce0c0a77dd67bfbe2ae6607134d5851ffd"},

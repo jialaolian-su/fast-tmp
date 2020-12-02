@@ -13,11 +13,12 @@ from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
 from tortoise.contrib.fastapi import register_tortoise
+from .apps.app1.app import app as app1_app
 
 from . import settings
 
 
-async def init_app(app: Starlette):
+def init_app(app: Starlette):
     @app.on_event("startup")
     async def startup():
         """
@@ -37,6 +38,8 @@ async def init_app(app: Starlette):
 
 def create_app():
     fast_app = FastAPI(debug=settings.DEBUG)
+    # 注册所有的app
+    fast_app.mount("/test", app1_app)
     fast_app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # 允许的域
@@ -45,6 +48,7 @@ def create_app():
         allow_headers=["*"],  # 允许特定的标头，如果为*则所有的都可以
     )
     fast_app.add_middleware(SentryAsgiMiddleware)
+
     register_tortoise(fast_app, config=settings.TORTOISE_ORM)
     init_app(fast_app)
 
