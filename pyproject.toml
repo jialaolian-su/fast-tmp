@@ -17,8 +17,10 @@ python = "^3.7"
 python-dotenv = "^0.15.0"
 fastapi = "^0.61.2"
 tortoise-orm = "^0.16.18"
-arq = "^0.19.1"
 watchgod = "^0.6"
+typer = "^0.3.2"
+uvicorn = "^0.12.3"
+python-multipart = "^0.0.5"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
@@ -30,7 +32,7 @@ pytest-cov = "*"
 pytest-asyncio = "*"
 asynctest = "*"
 bandit = "*"
-
+aerich = { git = "https://github.com/Chise1/aerich.git", branch = "dev" }
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
