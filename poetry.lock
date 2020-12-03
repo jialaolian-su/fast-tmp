@@ -2,7 +2,7 @@
 name = "aerich"
 version = "0.4.1"
 description = "A database migrations tool for Tortoise ORM."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "^3.7"
 develop = false
@@ -881,6 +881,19 @@ url = "https://mirrors.aliyun.com/pypi/simple"
 reference = "aliyun"
 
 [[package]]
+name = "watchgod"
+version = "0.6"
+description = "Simple, modern file watching and code reload in python."
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
+[[package]]
 name = "zipp"
 version = "3.4.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -903,7 +916,7 @@ dbdrivers = []
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "09601881c8c3988ddd2159777feb8ac37330d9ac7374db4f1c7feb21cf9da3b7"
+content-hash = "62130459bb01bfde299bf67709a31f9c5e0f75023132f9809f4bb6aaab180c04"
 
 [metadata.files]
 aerich = []
@@ -1247,6 +1260,10 @@ typing-extensions = [
 uvicorn = [
     {file = "uvicorn-0.12.3-py3-none-any.whl", hash = "sha256:562ef6aaa8fa723ab6b82cf9e67a774088179d0ec57cb17e447b15d58b603bcf"},
     {file = "uvicorn-0.12.3.tar.gz", hash = "sha256:5836edaf4d278fe67ba0298c0537bdb6398cf359eb644f79e6500ca1aad232b3"},
+]
+watchgod = [
+    {file = "watchgod-0.6-py35.py36.py37-none-any.whl", hash = "sha256:59700dab7445aa8e6067a5b94f37bae90fc367554549b1ed2e9d0f4f38a90d2a"},
+    {file = "watchgod-0.6.tar.gz", hash = "sha256:e9cca0ab9c63f17fc85df9fd8bd18156ff00aff04ebe5976cee473f4968c6858"},
 ]
 zipp = [
     {file = "zipp-3.4.0-py3-none-any.whl", hash = "sha256:102c24ef8f171fd729d46599845e95c7ab894a4cf45f5de11a44cc7444fb1108"},
