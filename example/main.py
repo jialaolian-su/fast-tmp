@@ -13,6 +13,7 @@ from example import settings
 from example.factory import create_app
 
 app = create_app()
+print(app.routes)
 
 if __name__ == "__main__":
     uvicorn.run(
