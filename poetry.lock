@@ -912,11 +912,12 @@ reference = "aliyun"
 
 [extras]
 dbdrivers = []
+sentry = []
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "39d38827abfdfaf514df288903c512ce42b07bff075cca273736415370c6a388"
+content-hash = "58c5c394747f6902c4dd74b9908089eb4d3d847f3a94831a6fd7a0dcaf3b6663"
 
 [metadata.files]
 aerich = []
