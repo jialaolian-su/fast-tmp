@@ -15,7 +15,7 @@ include = ["LICENSE", "README.md"]
 [tool.poetry.dependencies]
 python = "^3.7"
 python-dotenv = "^0.15.0"
-fastapi = "^0.61.2"
+fastapi = "^0.62.0"
 tortoise-orm = "^0.16.18"
 watchgod = "^0.6"
 typer = "^0.3.2"

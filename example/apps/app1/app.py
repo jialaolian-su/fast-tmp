@@ -84,9 +84,11 @@ app = FastAPI(
     debug=settings.DEBUG,
     default_response_class=AesResponse,  # 自定义返回类
 )
+
 app.add_exception_handler(ErrorException, error_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
 app.include_router(router=router, prefix="/app1")
+app.openapi()
 # app.include_router(notify_router)
 # app.include_router(yl_notify_router)
