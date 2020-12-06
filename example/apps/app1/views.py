@@ -12,36 +12,37 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Form
 from pydantic.main import BaseModel
 from pydantic import Field
-
-from example.apps.app1.serializer import LoginInfoSer
+from example.serializers import Author1, Author2, BOOK2, BOOK1
+from example.apps.app1.serializer import LoginInfoSer, LoginInfoSer2, GroupSer, GroupSer2
 
 router = APIRouter()
 
 
-class LoginInfoForm():
-    def __init__(self, username: str = Form(..., max_length=1), password: str = Form(...)):
-        self.username = username
-        self.password = password
-
-
-class Login2(BaseModel):
-    username: str
-    d: datetime = Field(..., )
-
-
-@router.post("/login", summary="登录", response_model=Login2)
-async def login(userinfo: LoginInfoForm = Depends()):
+@router.post("/login", summary="登录", response_model=LoginInfoSer)
+async def login(userinfo: LoginInfoSer):
     print(userinfo)
     return {"code": 200}
 
 
-class UserInfo(BaseModel):
-    """用户信息"""
-    name: str
-    nickname: str
-    age: int
-
-
-@router.get("/user", summary="用户信息", response_model=UserInfo)
-async def userinfo(username: Login2):
+@router.post("/user", summary="用户信息", response_model=LoginInfoSer2)
+async def userinfo(username: LoginInfoSer2):
     return
+
+
+@router.post("/group", response_model=Author1)
+async def group(group1: Author1):
+    return group1
+
+
+@router.post("/group2", response_model=Author2)
+async def group2(group2: Author2):
+    return group2
+
+@router.post("/book1", response_model=BOOK1)
+async def book1(book1: BOOK1):
+    return book1
+
+
+@router.post("/book2", response_model=BOOK2)
+async def book2(book2: BOOK2):
+    return book2
