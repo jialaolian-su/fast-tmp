@@ -1,22 +1,4 @@
-# -*- encoding: utf-8 -*-
-"""
-@File    : settings.py
-@Time    : 2020/12/2 21:57
-@Author  : chise
-@Email   : chise123@live.com
-@Software: PyCharm
-@info    :
-"""
-
-import logging
-import os
-import sys
-from typing import Optional
-
-import sentry_sdk
 from pydantic import BaseSettings
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class __Settings(BaseSettings):
@@ -30,41 +12,23 @@ class __Settings(BaseSettings):
     SERVER_URL: str
     DEBUG: bool = False
     PROJECT_CODE: str = "AUDIT"
-    SENTRY_DSN: Optional[str] = None
 
     class Config:
         env_file = '.env'
 
 
 settings = __Settings()
-if settings.SENTRY_DSN:  # 如果配置了sentry，则启动相关的服务
-    from sentry_sdk.integrations.redis import RedisIntegration
-
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        environment=os.getenv("ENVIRONMENT", "development"),
-        integrations=[RedisIntegration()],
-    )
-DEBUG = os.getenv("DEBUG") == "True"
-PROJECT_CODE = "AUDIT"
-
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
-DB_PORT = os.getenv("DB_PORT", 3306)
-DB_USER = os.getenv("DB_USER")
-DB_NAME = os.getenv("DB_NAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-SERVER_URL = os.getenv("SERVER_URL")
 
 TORTOISE_ORM = {
     "connections": {
         "default": {
             "engine": "tortoise.backends.mysql",
             "credentials": {
-                "host": DB_HOST,
-                "port": DB_PORT,
-                "user": DB_USER,
-                "password": DB_PASSWORD,
-                "database": DB_NAME,
+                "host": settings.DB_HOST,
+                "port": settings.DB_PORT,
+                "user": settings.DB_USER,
+                "password": settings.DB_PASSWORD,
+                "database": settings.DB_NAME,
                 "echo": os.getenv("DB_ECHO") == "True",
                 "maxsize": 10,
             },
