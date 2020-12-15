@@ -36,23 +36,23 @@ class __Settings(BaseSettings):
         env_file = '.env'
 
 
-settings = __Settings()
-if settings.SENTRY_DSN:  # 如果配置了sentry，则启动相关的服务
-    from sentry_sdk.integrations.redis import RedisIntegration
-
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        environment=os.getenv("ENVIRONMENT", "development"),
-        integrations=[RedisIntegration()],
-    )
+# settings = __Settings()
+# if settings.SENTRY_DSN:  # 如果配置了sentry，则启动相关的服务
+#     from sentry_sdk.integrations.redis import RedisIntegration
+#
+#     sentry_sdk.init(
+#         dsn=settings.SENTRY_DSN,
+#         environment=os.getenv("ENVIRONMENT", "development"),
+#         integrations=[RedisIntegration()],
+#     )
 DEBUG = os.getenv("DEBUG") == "True"
 PROJECT_CODE = "AUDIT"
 
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_PORT = os.getenv("DB_PORT", 3306)
-DB_USER = os.getenv("DB_USER")
-DB_NAME = os.getenv("DB_NAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_USER = os.getenv("DB_USER",'example')
+DB_NAME = os.getenv("DB_NAME",'example')
+DB_PASSWORD = os.getenv("DB_PASSWORD",'mnbvcxz123')
 SERVER_URL = os.getenv("SERVER_URL")
 
 TORTOISE_ORM = {

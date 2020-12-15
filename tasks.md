@@ -9,3 +9,4 @@
 7. 环境变量使用pydantic.BaseSettings完成
 8. 补充学习:openapi回调、扩展openapi、
 9. 补充学习测试相关的知识并整理完整的异步测试流程
+10. 增加离线环境打包功能

@@ -81,6 +81,8 @@ class ModelAdmin:
     actions_selection_counter = True
 
     # checks_class = ModelAdminChecks
+    def get_model(self) -> Type[Model]:
+        pass
 
     def get_route_conf(self):
         """
@@ -96,8 +98,16 @@ class ModelAdmin:
         """
         pass
 
-    def get_ser_class(self, action: str) -> Union[Tuple[BaseModel, BaseModel], BaseModel]:
-        pass
+    def get_ser_class(self, action: str) -> Union[Tuple[Type[BaseModel], Type[BaseModel]], Type[BaseModel]]:
+        model = self.get_model()
+        if action == 'create':
+            request_schema = pydantic_model_creator(model, exclude_readonly=True, name=model.__name__ + "_Post_Request")
+            response_schema = pydantic_model_creator(model, exclude_readonly=True,
+                                                     name=model.__name__ + "_Post_Response")
+            return request_schema, response_schema
+        elif action == 'list':
+            return pydantic_model_creator(model, include=self.list_display, name=model.__name__ + "_Get_List",
+                                          allow_cycles=True, )
 
     def get_ser(self):
         pass
@@ -118,7 +128,7 @@ class ModelAdmin:
         return create_func
 
     def list(self):
-        list_response_ser: BaseModel = self.get_ser_class('list')
+        list_response_ser: Type[BaseModel] = self.get_ser_class('list')
 
         @self.router.get(self.get_preifx('list'), response_model=list_response_ser)
         async def list_func(queryset: QuerySet[Model] = Depends(self.paginator)) -> List[Model]:
@@ -128,7 +138,7 @@ class ModelAdmin:
         return list_func
 
     def retrieve(self):
-        retrieve_response_ser: BaseModel = self.get_ser_class('retrieve')
+        retrieve_response_ser: Type[BaseModel] = self.get_ser_class('retrieve')
 
         @self.router.get(self.get_preifx('retrieve'), response_model=retrieve_response_ser)
         async def retrieve_func(pk: str) -> Model:
@@ -139,22 +149,15 @@ class ModelAdmin:
 
     def delete(self):
         @self.router.delete(self.get_preifx('delete'), )
-        async def delete_func(pk: str):  # todo:确认一下是否有信号
+        async def delete_func(pk: str):  # todo:确认一下增删改查是否会触发信号
             await self.get_queryset().filter(pk=pk).delete()
 
         return delete_func
 
-    def par_update(self):
+    def partial_update(self):
+        # todo:考虑字段为修改为空的问题
         par_update_request_ser, par_update_response_ser = self.get_ser_class('retrieve')
-
-        class B(BaseModel):
-            pass
-
-        x = B()
-        x.dict(exclude_unset=)  # todo:考虑字段为修改为空的问题
-
-        @self.router.patch(self.get_preifx('par_update'), response_model=par_update_response_ser)
-        async def par_update_func(pk: str, data: par_update_request_ser):
-            await self.model.filter(pk=pk).update(par_update_request_ser.dict(unse))
-
-        return par_update_func
+        # @self.router.patch(self.get_preifx('par_update'), response_model=par_update_response_ser)
+        # async def par_update_func(pk: str, data: par_update_request_ser):
+        #     await self.model.filter(pk=pk).update(par_update_request_ser.dict(unse))
+        # return par_update_func
