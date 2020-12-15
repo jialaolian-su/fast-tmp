@@ -1,10 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from tortoise import QuerySet
 from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
 from typing import Optional, List, Type, Sequence, Any, Union, Tuple
 
-from fast_tmp.contrib.admin_model.paginator import Paginator
+from fast_tmp.contrib.admin_model.paginator import Paginator, PaginatorDepends
 
 
 class MediaMetaClass(type):
@@ -20,10 +21,12 @@ class MediaMetaClass(type):
     #
     #     return new_class
     def __new__(cls, name, bases, attrs):
-        if name == 'BaseModelAdmin':
-            return type.__new__(cls, name, bases, attrs)
         attrs['__name__'] = name
-        return type.__new__(cls, name, bases, attrs)
+        new_class = type.__new__(cls, name, bases, attrs)
+        if attrs.get("paginator"):
+            list_queryset = attrs.get("get_queryset")(new_class)
+            attrs['paginator'] = attrs.get("paginator")(list_queryset)
+        return new_class
 
 
 class BaseModelAdmin(metaclass=MediaMetaClass):
@@ -48,14 +51,15 @@ class ModelAdmin:
     list_select_related = False  # 链接外键的信息
     list_per_page = 10  # list页面默认显示值
     list_max_show_all = 200  # list页面最大显示值
-    list_editable = ()  # 页面可编辑
+    list_editable = ()  # 可页面编辑
     search_fields = ()  # 搜索字段
     date_hierarchy = None
     save_as = False
     save_as_continue = True
     save_on_top = False
     # 分页功能
-    paginator = Paginator
+    # paginator = PaginatorDepends
+    paginator: Optional[PaginatorDepends] = None
     preserve_filters = True
     inlines: List[str] = []  # 内联显示？
 
@@ -117,8 +121,8 @@ class ModelAdmin:
         list_response_ser: BaseModel = self.get_ser_class('list')
 
         @self.router.get(self.get_preifx('list'), response_model=list_response_ser)
-        async def list_func() -> Model:
-            ret = await self.get_queryset()
+        async def list_func(queryset: QuerySet[Model] = Depends(self.paginator)) -> List[Model]:
+            ret = await queryset
             return ret
 
         return list_func
