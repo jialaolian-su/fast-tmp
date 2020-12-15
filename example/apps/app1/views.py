@@ -38,11 +38,27 @@ async def group(group1: Author1):
 async def group2(group2: Author2):
     return group2
 
+
 @router.post("/book1", response_model=BOOK1)
 async def book1(book1: BOOK1,):
     return book1
 
 
+class PDepends(object):
+    def __init__(self, queryset: str):
+        """
+        应该在AdminType初始化的时候，直接把对应的queryset写入到init里面，这样在使用的时候直接用depends依赖该函数即可。
+        :param queryset:
+        :param limit:
+        :param offset:
+        """
+        self.queryset = queryset
+
+    def __call__(self, s: str) -> str:
+        return self.queryset + s
+
+
 @router.post("/book2", response_model=BOOK2)
-async def book2(book2: BOOK2):
+async def book2(book2: BOOK2, d: str = Depends(PDepends("chise"))):
+    print("d:", d)
     return book2
