@@ -10,10 +10,10 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Form
-from pydantic.main import BaseModel
-from pydantic import Field
 from example.serializers import Author1, Author2, BOOK2, BOOK1
 from example.apps.app1.serializer import LoginInfoSer, LoginInfoSer2, GroupSer, GroupSer2
+from fast_tmp.contrib.admin_model import ModelAdmin
+from example.models import Team
 
 router = APIRouter()
 
@@ -40,7 +40,7 @@ async def group2(group2: Author2):
 
 
 @router.post("/book1", response_model=BOOK1)
-async def book1(book1: BOOK1,):
+async def book1(book1: BOOK1, ):
     return book1
 
 
@@ -62,3 +62,12 @@ class PDepends(object):
 async def book2(book2: BOOK2, d: str = Depends(PDepends("chise"))):
     print("d:", d)
     return book2
+
+
+class A(ModelAdmin):
+    model = Team
+    router = router
+    prefix = "/a"
+
+#todo:检查为什么没有model和router
+a = A()

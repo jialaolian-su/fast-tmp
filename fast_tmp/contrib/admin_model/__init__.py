@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from tortoise import QuerySet
-from tortoise.contrib.pydantic import pydantic_model_creator
+from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator, PydanticListModel
 from tortoise.models import Model
 from typing import Optional, List, Type, Sequence, Any, Union, Tuple
 
-from fast_tmp.contrib.admin_model.paginator import Paginator, PaginatorDepends
+from fast_tmp.contrib.admin_model.paginator import PaginatorDepends
 
 
 class MediaMetaClass(type):
@@ -23,27 +23,28 @@ class MediaMetaClass(type):
     def __new__(cls, name, bases, attrs):
         attrs['__name__'] = name
         new_class = type.__new__(cls, name, bases, attrs)
+
         if attrs.get("paginator"):
             list_queryset = attrs.get("get_queryset")(new_class)
             attrs['paginator'] = attrs.get("paginator")(list_queryset)
         return new_class
 
 
-class BaseModelAdmin(metaclass=MediaMetaClass):
-    model = None
-    action: Optional[APIRouter] = None
+# class BaseModelAdmin(metaclass=MediaMetaClass):
+#     model = None
+#     action: Optional[APIRouter] = None
+#
+#     def create_func(self):
+#         pass
+#
+#     def get_create_schema(self, ):
+#         pass
 
-    def create_func(self):
-        pass
 
-    def get_create_schema(self, ):
-        pass
-
-
-class ModelAdmin:
+class ModelAdmin(metaclass=MediaMetaClass):
     prefix: str
     router: APIRouter
-    model: Model
+    model: Type[Model]
     methods = ["create", "delete", "update", "delete", "retrieve"]  # put
     list_display = ("__str__",)
     # list_display_links = ()
@@ -58,8 +59,7 @@ class ModelAdmin:
     save_as_continue = True
     save_on_top = False
     # 分页功能
-    # paginator = PaginatorDepends
-    paginator: Optional[PaginatorDepends] = None
+    paginator: Optional[PaginatorDepends] = PaginatorDepends
     preserve_filters = True
     inlines: List[str] = []  # 内联显示？
 
@@ -73,12 +73,17 @@ class ModelAdmin:
     popup_response_template = None
 
     # Actions
-    actions: List[str] = []
+    actions: List[str] = ['list', ]
     # action对应的ser
     # action_form = helpers.ActionForm
     actions_on_top = True
     actions_on_bottom = False
     actions_selection_counter = True
+
+    def __init__(self):
+        for i in self.actions:
+            if hasattr(self, i):
+                getattr(self, i)()
 
     # checks_class = ModelAdminChecks
     def get_model(self) -> Type[Model]:
@@ -112,52 +117,56 @@ class ModelAdmin:
     def get_ser(self):
         pass
 
-    def get_queryset(self) -> Model:
-        pass
+    def get_queryset(self) -> QuerySet:
+        return self.model.all()
 
-    def create(self):
-        create_request_ser, create_response_ser = self.get_ser_class('create')
-        model: Model = self.model
+    def get_list_ser(self) -> Type[BaseModel]:
+        # ser: Type[PydanticListModel] = pydantic_queryset_creator(self.model, "List" + self.model.__name__)
+        ser = pydantic_queryset_creator(self.model, name="List" + self.model.__name__)
 
-        @self.router.post(self.get_preifx('create'), response_model=create_response_ser)
-        async def create_func(data: create_request_ser) -> Model:
-            d: BaseModel = data
-            ret = await model.create(**d.dict())
-            return ret
+        return self.paginator.get_schema(ser)
 
-        return create_func
+    # def create(self):
+    #     create_request_ser, create_response_ser = self.get_ser_class('create')
+    #     model: Model = self.model
+    #
+    #     @self.router.post(self.get_preifx('create'), response_model=create_response_ser)
+    #     async def create_func(data: create_request_ser) -> Model:
+    #         d: BaseModel = data
+    #         ret = await model.create(**d.dict())
+    #         return ret
+    #
+    #     return create_func
 
     def list(self):
-        list_response_ser: Type[BaseModel] = self.get_ser_class('list')
-
-        @self.router.get(self.get_preifx('list'), response_model=list_response_ser)
+        @self.router.get(self.get_preifx('list'), response_model=self.get_list_ser())
         async def list_func(queryset: QuerySet[Model] = Depends(self.paginator)) -> List[Model]:
             ret = await queryset
             return ret
 
         return list_func
 
-    def retrieve(self):
-        retrieve_response_ser: Type[BaseModel] = self.get_ser_class('retrieve')
-
-        @self.router.get(self.get_preifx('retrieve'), response_model=retrieve_response_ser)
-        async def retrieve_func(pk: str) -> Model:
-            ret = await self.get_queryset().get(pk=pk)
-            return ret
-
-        return retrieve_func
-
-    def delete(self):
-        @self.router.delete(self.get_preifx('delete'), )
-        async def delete_func(pk: str):  # todo:确认一下增删改查是否会触发信号
-            await self.get_queryset().filter(pk=pk).delete()
-
-        return delete_func
-
-    def partial_update(self):
-        # todo:考虑字段为修改为空的问题
-        par_update_request_ser, par_update_response_ser = self.get_ser_class('retrieve')
-        # @self.router.patch(self.get_preifx('par_update'), response_model=par_update_response_ser)
-        # async def par_update_func(pk: str, data: par_update_request_ser):
-        #     await self.model.filter(pk=pk).update(par_update_request_ser.dict(unse))
-        # return par_update_func
+    # def retrieve(self):
+    #     retrieve_response_ser: Type[BaseModel] = self.get_ser_class('retrieve')
+    #
+    #     @self.router.get(self.get_preifx('retrieve'), response_model=retrieve_response_ser)
+    #     async def retrieve_func(pk: str) -> Model:
+    #         ret = await self.get_queryset().get(pk=pk)
+    #         return ret
+    #
+    #     return retrieve_func
+    #
+    # def delete(self):
+    #     @self.router.delete(self.get_preifx('delete'), )
+    #     async def delete_func(pk: str):  # todo:确认一下增删改查是否会触发信号
+    #         await self.get_queryset().filter(pk=pk).delete()
+    #
+    #     return delete_func
+    #
+    # def partial_update(self):
+    #     # todo:考虑字段为修改为空的问题
+    #     par_update_request_ser, par_update_response_ser = self.get_ser_class('retrieve')
+    #     # @self.router.patch(self.get_preifx('par_update'), response_model=par_update_response_ser)
+    #     # async def par_update_func(pk: str, data: par_update_request_ser):
+    #     #     await self.model.filter(pk=pk).update(par_update_request_ser.dict(unse))
+    #     # return par_update_func

@@ -1,5 +1,9 @@
-from typing import Optional
+from typing import Optional, Type, Awaitable, Coroutine, Any
+
+from pydantic import validator
+from pydantic.main import BaseModel
 from tortoise import QuerySet, Model
+from tortoise.contrib.pydantic import PydanticListModel
 
 
 class PaginatorDepends(object):
@@ -14,6 +18,12 @@ class PaginatorDepends(object):
 
     def __call__(self, ) -> QuerySet[Model]:
         return self.queryset
+
+    def get_schema(self, ser: Type[PydanticListModel]):
+        class ListSchema(BaseModel):
+            data: ser
+
+        return ListSchema
 
 
 class LimitOffsetPaginatorDepends(PaginatorDepends):
@@ -32,10 +42,23 @@ class LimitOffsetPaginatorDepends(PaginatorDepends):
         self.limit = limit
         self.offset = offset
 
-    def __call__(self, limit: Optional[int] = None,
-                 offset: Optional[int] = None) -> QuerySet[Model]:
+    def __call__(self, limit: Optional[int] = None, offset: Optional[int] = None) -> ():
         if limit is not None and offset is not None:
             queryset = self.queryset.limit(limit).offset(offset)
         else:
             queryset = self.queryset.limit(self.limit).offset(self.offset)
-        return queryset
+
+        async def f() -> dict:
+            return {
+                "data": await queryset,
+                "count": await self.queryset.count()
+            }
+
+        return f
+
+    def get_schema(self, ser: Type[PydanticListModel]):
+        class ListSchema(BaseModel):
+            count: int
+            data: ser
+
+        return ListSchema
