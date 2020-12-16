@@ -21,12 +21,14 @@ class MediaMetaClass(type):
     #
     #     return new_class
     def __new__(cls, name, bases, attrs):
+
         attrs['__name__'] = name
         new_class = type.__new__(cls, name, bases, attrs)
 
-        if attrs.get("paginator"):
-            list_queryset = attrs.get("get_queryset")(new_class)
-            attrs['paginator'] = attrs.get("paginator")(list_queryset)
+        if name != 'ModelAdmin':
+            if hasattr(new_class, "get_queryset"):
+                new_class.paginator = new_class.paginator(new_class.get_queryset())
+                list_queryset = getattr(new_class, "get_queryset")()
         return new_class
 
 
@@ -80,7 +82,7 @@ class ModelAdmin(metaclass=MediaMetaClass):
     actions_on_bottom = False
     actions_selection_counter = True
 
-    def __init__(self):
+    def init_route(self):
         for i in self.actions:
             if hasattr(self, i):
                 getattr(self, i)()
@@ -170,3 +172,6 @@ class ModelAdmin(metaclass=MediaMetaClass):
     #     # async def par_update_func(pk: str, data: par_update_request_ser):
     #     #     await self.model.filter(pk=pk).update(par_update_request_ser.dict(unse))
     #     # return par_update_func
+    class Meta:
+        abstract = True
+        model: Model

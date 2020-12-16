@@ -71,3 +71,4 @@ class A(ModelAdmin):
 
 #todo:检查为什么没有model和router
 a = A()
+a.init_route()
