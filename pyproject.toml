@@ -22,6 +22,7 @@ typer = "^0.3.2"
 uvicorn = "^0.12.3"
 python-multipart = "^0.0.5"
 aerich = { git = "https://github.com/Chise1/aerich.git", branch = "dev" }
+mypy = "^0.790"
 
 
 [tool.poetry.dev-dependencies]

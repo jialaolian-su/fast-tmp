@@ -8,8 +8,11 @@
 @info    :
 """
 from datetime import datetime
+from typing import Type
 
 from fastapi import APIRouter, Depends, Form
+from tortoise import Model
+
 from example.serializers import Author1, Author2, BOOK2, BOOK1
 from example.apps.app1.serializer import LoginInfoSer, LoginInfoSer2, GroupSer, GroupSer2
 from fast_tmp.contrib.admin_model import ModelAdmin
@@ -56,19 +59,3 @@ class PDepends(object):
 
     def __call__(self, s: str) -> str:
         return self.queryset + s
-
-
-@router.post("/book2", response_model=BOOK2)
-async def book2(book2: BOOK2, d: str = Depends(PDepends("chise"))):
-    print("d:", d)
-    return book2
-
-
-class A(ModelAdmin):
-    model = Team
-    router = router
-    prefix = "/a"
-
-#todo:检查为什么没有model和router
-a = A()
-a.init_route()

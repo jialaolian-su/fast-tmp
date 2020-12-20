@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from tortoise import QuerySet
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator, PydanticListModel
 from tortoise.models import Model
-from typing import Optional, List, Type, Sequence, Any, Union, Tuple
+from typing import Optional, List, Type, Sequence, Any, Union, Tuple, Callable
 
 from fast_tmp.contrib.admin_model.paginator import PaginatorDepends
 
@@ -21,14 +21,12 @@ class MediaMetaClass(type):
     #
     #     return new_class
     def __new__(cls, name, bases, attrs):
-
         attrs['__name__'] = name
         new_class = type.__new__(cls, name, bases, attrs)
-
-        if name != 'ModelAdmin':
-            if hasattr(new_class, "get_queryset"):
-                new_class.paginator = new_class.paginator(new_class.get_queryset())
-                list_queryset = getattr(new_class, "get_queryset")()
+        #
+        # if name != 'ModelAdmin':
+        #     if hasattr(new_class, "get_queryset"):
+        #         new_class.paginator = new_class.paginator(new_class.get_queryset())
         return new_class
 
 
@@ -43,7 +41,7 @@ class MediaMetaClass(type):
 #         pass
 
 
-class ModelAdmin(metaclass=MediaMetaClass):
+class ModelAdmin():
     prefix: str
     router: APIRouter
     model: Type[Model]
@@ -61,7 +59,7 @@ class ModelAdmin(metaclass=MediaMetaClass):
     save_as_continue = True
     save_on_top = False
     # 分页功能
-    paginator: Optional[PaginatorDepends] = PaginatorDepends
+    paginator = PaginatorDepends
     preserve_filters = True
     inlines: List[str] = []  # 内联显示？
 
@@ -83,13 +81,15 @@ class ModelAdmin(metaclass=MediaMetaClass):
     actions_selection_counter = True
 
     def init_route(self):
-        for i in self.actions:
-            if hasattr(self, i):
-                getattr(self, i)()
+        self.list()
+
+        # for i in self.actions:
+        #     if hasattr(self, i):
+        #         getattr(self, i)()
 
     # checks_class = ModelAdminChecks
     def get_model(self) -> Type[Model]:
-        pass
+        return self.model
 
     def get_route_conf(self):
         """
@@ -103,7 +103,8 @@ class ModelAdmin(metaclass=MediaMetaClass):
         :param action:create,list等
         :return:
         """
-        pass
+        if action=='list':
+            return '/ad_t1'
 
     def get_ser_class(self, action: str) -> Union[Tuple[Type[BaseModel], Type[BaseModel]], Type[BaseModel]]:
         model = self.get_model()
@@ -116,17 +117,17 @@ class ModelAdmin(metaclass=MediaMetaClass):
             return pydantic_model_creator(model, include=self.list_display, name=model.__name__ + "_Get_List",
                                           allow_cycles=True, )
 
+    def get_list_ser_class(self) -> Type[PydanticListModel]:
+        ser = pydantic_queryset_creator(self.model, name="List" + self.model.__name__)
+        return ser
+
     def get_ser(self):
         pass
 
-    def get_queryset(self) -> QuerySet:
-        return self.model.all()
-
-    def get_list_ser(self) -> Type[BaseModel]:
-        # ser: Type[PydanticListModel] = pydantic_queryset_creator(self.model, "List" + self.model.__name__)
-        ser = pydantic_queryset_creator(self.model, name="List" + self.model.__name__)
-
-        return self.paginator.get_schema(ser)
+    def get_queryset(self) -> QuerySet[Model]:
+        m = self.get_model()
+        return m.all()
+        # return self.model.all()
 
     # def create(self):
     #     create_request_ser, create_response_ser = self.get_ser_class('create')
@@ -141,9 +142,11 @@ class ModelAdmin(metaclass=MediaMetaClass):
     #     return create_func
 
     def list(self):
-        @self.router.get(self.get_preifx('list'), response_model=self.get_list_ser())
-        async def list_func(queryset: QuerySet[Model] = Depends(self.paginator)) -> List[Model]:
-            ret = await queryset
+        page = self.paginator(self.get_queryset)
+        s=self.get_list_ser_class()
+        @self.router.get(self.get_preifx('list'), response_model=page.get_schema(self.get_list_ser_class()))
+        async def list_func(queryset: Callable = Depends(page)):
+            ret = await queryset()
             return ret
 
         return list_func

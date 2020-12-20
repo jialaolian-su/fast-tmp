@@ -92,3 +92,6 @@ app.include_router(router=router, prefix="/app1")
 # app.openapi()
 # app.include_router(notify_router)
 # app.include_router(yl_notify_router)
+from fast_tmp.core.router import router as fast_tmp_router
+
+app.include_router(fast_tmp_router, prefix='/tx1')
