@@ -43,7 +43,7 @@ async def group2(group2: Author2):
 
 
 @router.post("/book1", response_model=BOOK1)
-async def book1(book1: BOOK1, ):
+async def book1(book1: BOOK1, **kwargs):
     return book1
 
 

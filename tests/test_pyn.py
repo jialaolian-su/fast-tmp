@@ -58,9 +58,10 @@ class Team(Model):
 
 
 async def run():
+    x = Team.describe()
     await Tortoise.init(db_url="sqlite://:memory:", modules={"models": ["__main__"]})
+    x2 = Team.describe()
     await Tortoise.generate_schemas()
-
     Event_Pydantic = pydantic_model_creator(Event)
     Event_Pydantic_List = pydantic_queryset_creator(Event)
     Tournament_Pydantic = pydantic_model_creator(Tournament)

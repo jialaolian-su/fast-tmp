@@ -7,9 +7,21 @@
 @Software: PyCharm
 @info    :
 """
-from typing import List
+from typing import List, Dict, Type, Any, Callable
+from .mixins import RequestMixin
+from tortoise import Model
+
+from fastapi import FastAPI, APIRouter
 
 
-class Admin():
-    model: str
-    list_display:List[str]
+class AdminApp(FastAPI):
+    """
+    继承增加新功能
+    """
+    models: Dict[str, Type[Model]] = {}
+    list_display: List[str]
+    user_model: Type[Model]
+    permission_model: Type[Model]
+    role_model: Type[Model]
+    admin_log_model: Type[Model]
+    extra_request: Type[RequestMixin]

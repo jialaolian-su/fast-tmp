@@ -1,46 +1,18 @@
+from typing import Type
+
 from tortoise import fields, models
 
 from fast_tmp.utils.password import make_password, verify_password
 
 
-class AbstractModel(models.Model):
-    created_time = fields.DatetimeField(auto_now_add=True)
+class AbstractUser(models.Model):
+    username = fields.CharField(max_length=20, unique=True)
+    password = fields.CharField(max_length=200, )
+    is_active = fields.BooleanField(default=True, )
+    is_superuser = fields.BooleanField(default=False)
 
     class Meta:
         abstract = True
-
-
-class Permission(AbstractModel):
-    name = fields.CharField(max_length=255)
-    codename = fields.CharField(max_length=100)
-    users: fields.ManyToManyRelation["User"]
-    groups: fields.ManyToManyRelation["Group"]
-
-
-class Group(AbstractModel):
-    name = fields.CharField(max_length=150, unique=True)
-    permissions = fields.ManyToManyField("models.Permission", related_name="groups")
-    users: fields.ManyToManyRelation["User"]
-
-
-# todo:测试是否有必要增加ManyToManyRelation字段
-class User(AbstractModel):
-    username = fields.CharField(
-        max_length=150,
-        unique=True,
-    )
-    nickname = fields.CharField(max_length=150, null=True)
-    email = fields.CharField(max_length=255, null=True)
-    is_active = fields.BooleanField(
-        default=True,
-    )
-    is_superuser = fields.BooleanField(default=False)
-    password = fields.CharField(max_length=255)  # 设置密码
-    salt = fields.CharField(max_length=32, description="随机盐")
-    permissions = fields.ManyToManyField("models.Permission", related_name="users")
-    groups: fields.ManyToManyRelation[Group] = fields.ManyToManyField(
-        "models.Group", related_name="users"
-    )
 
     def set_password(self, raw_password: str):
         """
@@ -48,7 +20,7 @@ class User(AbstractModel):
         :param raw_password:
         :return:
         """
-        self.password, self.salt = make_password(raw_password)
+        self.password = make_password(raw_password)
 
     def verify_password(self, raw_password: str) -> bool:
         """
@@ -56,7 +28,49 @@ class User(AbstractModel):
         :param raw_password:
         :return:
         """
-        return verify_password(raw_password, self.password, self.salt)
+        return verify_password(raw_password, self.password)
 
     def __str__(self):
-        return self.nickname if self.nickname else self.username
+        return self.username
+
+
+class AbstractPermission(models.Model):
+    label = fields.CharField(max_length=128)
+    model = fields.CharField(max_length=128)
+    codename = fields.CharField(max_length=128)
+
+    def __str__(self):
+        return self.label
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def make_permission(cls, model: Type[models.Model], ):
+        """
+        生成model对应的权限
+        """
+        # todo:生成对应默认权限
+
+
+class AbstractRole(models.Model):
+    label = fields.CharField(max_length=50)
+    users = fields.ManyToManyField("models.User")
+    permissions = fields.ManyToManyField("models.Permission")
+
+    def __str__(self):
+        return self.label
+
+    class Meta:
+        abstract = True
+
+
+class AbstractAdminLog(models.Model):
+    admin_log_id = fields.IntField(pk=True)
+    admin = fields.ForeignKeyField("models.User")
+    action = fields.CharField(max_length=20)
+    model = fields.CharField(max_length=50)
+    content = fields.JSONField()
+
+    class Meta:
+        abstract = True

@@ -9,6 +9,12 @@
 """
 from typing import Tuple
 
+from pydantic.main import BaseModel
 
-def limit_offset_paginator(limit: int, offset: int) -> Tuple[int, int]:
-    return limit, offset
+
+class LimitOffsetPaginator(BaseModel):
+    limit:int
+    offset:int
+
+# def limit_offset_paginator(limit: int, offset: int) -> Tuple[int, int]:
+#     return limit, offset
