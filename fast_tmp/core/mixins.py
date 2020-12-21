@@ -1,12 +1,17 @@
-from typing import List, Dict, Type, Any, Callable, Iterable, Tuple
+from typing import List, Dict, Type, Any, Callable, Iterable, Tuple, Union
 from enum import Enum
 from pydantic import BaseModel
 from pydantic.utils import get_model
 from tortoise import Model
 from fastapi import APIRouter, Depends
+from tortoise.query_utils import Q
+
 from .choices import Method, ViewType
-from .filter import search_depend
+from .filter import search_depend, DependField, filter_depend
+from ..contrib import get_user_model
 from ..utils.model import get_model_from_str
+
+User = get_user_model()
 
 
 class RequestMixin(BaseModel):
@@ -19,7 +24,7 @@ class RequestMixin(BaseModel):
     detail: bool
     view_type: ViewType
     response_schema: Type[BaseModel]
-    permission: 'Permission'  # todo:增加权限支持
+    permissions: Tuple[Union[str, 'Permission'], ...]  # todo:增加权限支持
     __init: bool = False
 
     def __call__(self, *args, **kwargs):
@@ -42,34 +47,56 @@ class RequestMixin(BaseModel):
         生成该请求的openapi字符串
         """
 
+    def has_perm(self, user_id: int):
+        User
+
 
 class GetMixin(RequestMixin):
     method = Method.GET
     pass
 
 
-from .page import LimitOffsetPaginator
+from .page import LimitOffsetPaginator, limit_offset_paginator
 
 
 class ListMixin(GetMixin):
     list_display: Iterable[str]
     view_type = ViewType.Grid
+    filter_classes: Tuple[Union[DependField, str], ...]
+    search_classes: Tuple[Union[DependField, str], ...]
+    order_classes: Tuple[str, ...]  # fixme: 注意要考虑一下是否支持多个排序
+
+    def init(self, router: APIRouter):  # fixme:等待修复
+        pass
+
+    def get_list_response_schema(self):
+        return self.response_schema
+
+    def get_filter_classes(self):
+        return self.filter_classes
+
+    def get_search_classes(self):
+        return self.search_classes
+
+
+class ListLimitOffsetMixin(ListMixin):
     paginator: Type[BaseModel] = LimitOffsetPaginator
-    filter_classes: Tuple[str, ...]
-    search_classes: Tuple[str, ...]
 
-    def init(self, router: APIRouter):
-        super(ListMixin, self).init(router)
-
-        @router.get(self.path, response_model=self.response_schema)
-        async def list(page: LimitOffsetPaginator, resource: str,
-                       search: str = Depends(search_depend(self.search_classes)), **kwargs):
+    def init(self, router: APIRouter):  # todo:等待测试
+        @router.get(self.path, response_model=self.get_list_response_schema())
+        async def list(resource: str, page: LimitOffsetPaginator = Depends(limit_offset_paginator),
+                       search_fields: dict = Depends(search_depend(self.get_search_classes())),
+                       fielter_fields: dict = Depends(filter_depend(self.get_filter_classes()))):
             model = get_model_from_str(resource)
+            count = await model.all().count()
             queryset = model.all().limit(page.limit).offset(page.offset)
-            # todo:等待测试
-
-    def __load_filter_field(self):
-        pass
-
-    def __load_search_field(self):
-        pass
+            q = Q()
+            for k, v in search_fields.items():  # 搜索功能
+                q |= Q(**{k: v})
+            queryset = queryset.filter(q)
+            for k, v in fielter_fields.items():
+                queryset = queryset.filter(**{k: v})
+            return {
+                "count": count,
+                "data": await queryset
+            }

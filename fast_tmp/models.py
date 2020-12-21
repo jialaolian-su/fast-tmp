@@ -10,6 +10,7 @@ class AbstractUser(models.Model):
     password = fields.CharField(max_length=200, )
     is_active = fields.BooleanField(default=True, )
     is_superuser = fields.BooleanField(default=False)
+    roles: fields.ManyToManyRelation["Role"]
 
     class Meta:
         abstract = True
@@ -55,8 +56,8 @@ class AbstractPermission(models.Model):
 
 class AbstractRole(models.Model):
     label = fields.CharField(max_length=50)
-    users = fields.ManyToManyField("models.User")
-    permissions = fields.ManyToManyField("models.Permission")
+    users: fields.ManyToManyRelation[AbstractUser] = fields.ManyToManyField("models.User")
+    permissions: fields.ManyToManyRelation[AbstractPermission] = fields.ManyToManyField("models.Permission")
 
     def __str__(self):
         return self.label

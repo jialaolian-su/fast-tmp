@@ -16,5 +16,5 @@ class LimitOffsetPaginator(BaseModel):
     limit:int
     offset:int
 
-# def limit_offset_paginator(limit: int, offset: int) -> Tuple[int, int]:
-#     return limit, offset
+def limit_offset_paginator(limit: int, offset: int) ->LimitOffsetPaginator:
+    return LimitOffsetPaginator(limit=limit,offset=offset)

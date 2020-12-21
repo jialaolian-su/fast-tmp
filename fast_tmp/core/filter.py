@@ -1,4 +1,4 @@
-from typing import List, Union, Optional, Any, Type
+from typing import List, Union, Optional, Any, Type, Tuple
 import inspect
 
 from pydantic.main import BaseModel
@@ -11,7 +11,7 @@ class DependField(BaseModel):
 
 
 # todo:等待完成和测试
-def search_depend(fields: List[Union[str]]):
+def search_depend(fields: Tuple[Union[DependField, str], ...]):
     """
     搜索依赖
     """
@@ -32,10 +32,11 @@ def search_depend(fields: List[Union[str]]):
     return f
 
 
-def filter_depend(model_name, fields: List[str]):
+def filter_depend(fields:Tuple[Union[DependField, str], ...]):
     """
     过滤依赖
     """
+
 
 
 def order_depend(model_name, fields: List[str]):
