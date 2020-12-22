@@ -10,10 +10,32 @@ class DependField(BaseModel):
     field_type: Type[Any] = str  # 字段类型
 
 
+class SearchValue(BaseModel):
+    search_fields: List[str]
+    value: str
+
+
 # todo:等待完成和测试
-def search_depend(fields: Tuple[Union[DependField, str], ...]):
+def search_depend(fields: Tuple[Union[DependField, str], ...]) -> Optional[SearchValue]:
     """
     搜索依赖
+    """
+
+    def f(search: str = None):
+        if search is not None:
+            res = []
+            for field in fields:
+                res.append(field)
+            return SearchValue(search_fields=res, value=search)
+        else:
+            return None
+
+    return f
+
+
+def filter_depend(fields: Tuple[Union[DependField, str], ...]):
+    """
+    过滤依赖
     """
 
     def f(**kwargs):
@@ -30,13 +52,6 @@ def search_depend(fields: Tuple[Union[DependField, str], ...]):
         parameters.append(p)
     f.__signature__ = inspect.Signature(parameters=parameters, return_annotation=dict)  # 依赖
     return f
-
-
-def filter_depend(fields:Tuple[Union[DependField, str], ...]):
-    """
-    过滤依赖
-    """
-
 
 
 def order_depend(model_name, fields: List[str]):

@@ -6,6 +6,7 @@ class Filter:
 
     # field_class = forms.Field #???
     def __init__(self, field_name: Optional[str] = None, lookup_expr: Optional[str] = None, *, label):
+        pass
 
 
 class FilterSetMetaclass(type):

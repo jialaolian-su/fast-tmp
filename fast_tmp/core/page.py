@@ -13,8 +13,9 @@ from pydantic.main import BaseModel
 
 
 class LimitOffsetPaginator(BaseModel):
-    limit:int
-    offset:int
+    limit: int
+    offset: int
 
-def limit_offset_paginator(limit: int, offset: int) ->LimitOffsetPaginator:
-    return LimitOffsetPaginator(limit=limit,offset=offset)
+
+def limit_offset_paginator(limit: int = 10, offset: int = 0) -> LimitOffsetPaginator:
+    return LimitOffsetPaginator(limit=limit, offset=offset)

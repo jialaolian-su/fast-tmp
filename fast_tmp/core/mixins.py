@@ -1,13 +1,13 @@
-from typing import List, Dict, Type, Any, Callable, Iterable, Tuple, Union
+from typing import List, Dict, Type, Any, Callable, Iterable, Tuple, Union, Optional
 from enum import Enum
 from pydantic import BaseModel
 from pydantic.utils import get_model
 from tortoise import Model
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, FastAPI
 from tortoise.query_utils import Q
 
 from .choices import Method, ViewType
-from .filter import search_depend, DependField, filter_depend
+from .filter import search_depend, DependField, filter_depend, SearchValue
 from ..contrib import get_user_model
 from ..utils.model import get_model_from_str
 
@@ -21,16 +21,16 @@ class RequestMixin(BaseModel):
     method: Method
     path: str
     prefix: str
-    detail: bool
+    # detail: bool
     view_type: ViewType
-    response_schema: Type[BaseModel]
-    permissions: Tuple[Union[str, 'Permission'], ...]  # todo:增加权限支持
+    response_schema: Type[BaseModel] = ()
+    permissions: Tuple[Union[str, 'Permission'], ...] = ()  # todo:增加权限支持
     __init: bool = False
 
     def __call__(self, *args, **kwargs):
         pass
 
-    def init(self, router: APIRouter):
+    def init(self, router: Union[APIRouter, FastAPI]):
         """
         注册路由
         """
@@ -48,7 +48,7 @@ class RequestMixin(BaseModel):
         """
 
     def has_perm(self, user_id: int):
-        User
+        pass
 
 
 class GetMixin(RequestMixin):
@@ -60,11 +60,11 @@ from .page import LimitOffsetPaginator, limit_offset_paginator
 
 
 class ListMixin(GetMixin):
-    list_display: Iterable[str]
+    list_display: Iterable[str] = ()
     view_type = ViewType.Grid
-    filter_classes: Tuple[Union[DependField, str], ...]
-    search_classes: Tuple[Union[DependField, str], ...]
-    order_classes: Tuple[str, ...]  # fixme: 注意要考虑一下是否支持多个排序
+    filter_classes: Tuple[Union[DependField, str], ...] = ()
+    search_classes: Tuple[Union[DependField, str], ...] = ()
+    order_classes: Tuple[str, ...] = ()  # fixme: 注意要考虑一下是否支持多个排序
 
     def init(self, router: APIRouter):  # fixme:等待修复
         pass
@@ -81,21 +81,27 @@ class ListMixin(GetMixin):
 
 class ListLimitOffsetMixin(ListMixin):
     paginator: Type[BaseModel] = LimitOffsetPaginator
+    model: str
 
     def init(self, router: APIRouter):  # todo:等待测试
+        # @router.get(self.path, response_model=self.get_list_response_schema())
+        # async def list(resource: str, page: LimitOffsetPaginator = Depends(limit_offset_paginator),
+        #                search_fields: dict = Depends(search_depend(self.get_search_classes())),
+        #                filter_fields: dict = Depends(filter_depend(self.get_filter_classes()))):
         @router.get(self.path, response_model=self.get_list_response_schema())
-        async def list(resource: str, page: LimitOffsetPaginator = Depends(limit_offset_paginator),
-                       search_fields: dict = Depends(search_depend(self.get_search_classes())),
-                       fielter_fields: dict = Depends(filter_depend(self.get_filter_classes()))):
-            model = get_model_from_str(resource)
+        async def list(page: LimitOffsetPaginator = Depends(limit_offset_paginator),
+                       search_field: Optional[SearchValue] = Depends(search_depend(self.get_search_classes())), ):
+            model = get_model_from_str(self.model)
             count = await model.all().count()
             queryset = model.all().limit(page.limit).offset(page.offset)
             q = Q()
-            for k, v in search_fields.items():  # 搜索功能
-                q |= Q(**{k: v})
-            queryset = queryset.filter(q)
-            for k, v in fielter_fields.items():
-                queryset = queryset.filter(**{k: v})
+            # 搜索功能
+            if search_field:
+                for k in search_field.search_fields:  # 搜索功能
+                    q |= Q(**{k: search_field.value})
+                queryset = queryset.filter(q)
+            # for k, v in filter_fields.items():
+            #     queryset = queryset.filter(**{k: v})
             return {
                 "count": count,
                 "data": await queryset

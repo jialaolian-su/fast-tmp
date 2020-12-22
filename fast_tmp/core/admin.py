@@ -335,6 +335,8 @@ class AdminApp(FastAPI):
     #         export=menu.export,
     #         import_=menu.import_,
     #     )
+    def register_mixin(self, mixin: RequestMixin):
+        mixin.init(self)
 
 
 admin_app = AdminApp(
@@ -343,3 +345,7 @@ admin_app = AdminApp(
     root_path="/admin",
     description="FastAPI Admin Dashboard based on FastAPI and Tortoise ORM.",
 )
+from .mixins import ListLimitOffsetMixin
+
+x = ListLimitOffsetMixin(path="/list", prefix="dd", search_classes=('name',), model="Team")
+admin_app.register_mixin(x)

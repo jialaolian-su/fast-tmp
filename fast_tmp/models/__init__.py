@@ -10,7 +10,6 @@ class AbstractUser(models.Model):
     password = fields.CharField(max_length=200, )
     is_active = fields.BooleanField(default=True, )
     is_superuser = fields.BooleanField(default=False)
-    roles: fields.ManyToManyRelation["Role"]
 
     class Meta:
         abstract = True
@@ -67,7 +66,6 @@ class AbstractRole(models.Model):
 
 
 class AbstractAdminLog(models.Model):
-    admin_log_id = fields.IntField(pk=True)
     admin = fields.ForeignKeyField("models.User")
     action = fields.CharField(max_length=20)
     model = fields.CharField(max_length=50)

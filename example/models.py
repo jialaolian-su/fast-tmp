@@ -7,8 +7,6 @@
 @Software: PyCharm
 @info    :
 """
-from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
-
 from tortoise.models import Model
 from tortoise import fields
 
