@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, Form
 from tortoise import Model
 
 from example.serializers import Author1, Author2, BOOK2, BOOK1
-from example.apps.app1.serializer import LoginInfoSer, LoginInfoSer2, GroupSer, GroupSer2
+from example.apps.app1.serializer import LoginInfoSer, LoginInfoSer2
 from fast_tmp.contrib.admin_model import ModelAdmin
 from example.models import Team
 

@@ -111,3 +111,22 @@ class Team(Model):
 
     class Meta:
         ordering = ["name"]
+
+
+from fast_tmp.models import AbstractUser, AbstractPermission, AbstractRole, AbstractAdminLog
+
+
+class User(AbstractUser):
+    pass
+
+
+class Permission(AbstractPermission):
+    pass
+
+
+class Role(AbstractRole):
+    pass
+
+
+class AdminLog(AbstractAdminLog):
+    pass

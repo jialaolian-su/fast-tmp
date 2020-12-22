@@ -13,7 +13,8 @@ from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
 from tortoise.contrib.fastapi import register_tortoise
-from . import settings
+from fast_tmp.conf import settings
+from fast_tmp.core.admin import admin_app
 
 
 def create_app():
@@ -38,11 +39,12 @@ def create_app():
 
     register_tortoise(fast_app, config=settings.TORTOISE_ORM)
     # 在项目的所有序列化器生成之前，一定要引入这一行。才能让序列化器正确序列化到外键、多对多字段等。
-    Tortoise.init_models(["example.models", "aerich.models","fast_tmp.models"], "models")
+    Tortoise.init_models(["example.models", "aerich.models", "fast_tmp.models"], "models")
     from .apps.app1.app import app as app1_app
 
     # 注册所有的app
     fast_app.mount("/test", app1_app)
+    fast_app.mount('/admin', admin_app)
     fast_app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # 允许的域
