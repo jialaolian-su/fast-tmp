@@ -26,7 +26,6 @@ class RequestMixin(BaseModel):
     response_schema: Type[BaseModel] = ()
     permissions: Tuple[Union[str, 'Permission'], ...] = ()  # todo:增加权限支持
     request_element_type: Dict[str, ElementType] = {}  # 记录请求的类型
-    __init: bool = False
 
     def __call__(self, *args, **kwargs):
         pass
@@ -35,7 +34,6 @@ class RequestMixin(BaseModel):
         """
         注册路由
         """
-        self.__init = True
         pass
         # if self.method == Method.GET:
         #     @router.get(self.path, response_model=self.response_schema)
@@ -59,7 +57,33 @@ class GetMixin(RequestMixin):
 
 class PostMixin(RequestMixin):
     method = Method.POST
-    pass
+    model: str
+    post_include_fileds: List[str] = []
+    post_exclude_fields: List[str] = []  # fixme:考虑把枚举作为请求接口进行返回
+
+    def get_create_schema(self):
+        pass
+
+    def get_response_schema(self):
+        pass
+
+    def init(self, router: Union[APIRouter, FastAPI]):
+        pass
+
+
+class DeleteMixin(RequestMixin):
+    method = Method.DELETE
+    model: str
+
+    def init(self, router: Union[APIRouter, FastAPI]):
+        async def f(pk: str):
+            model = get_model_from_str(self.model)
+            await model.filter(pk=pk).delete()  # fixime:记得测试是否触发信号
+
+        f.__name__ = self.model + "_delete_mixin"
+        self.request_element_type[f.__name__] = ElementType.Null
+        router.delete(self.path, )(f)
+        return f
 
 
 class ListMixin(GetMixin):
@@ -69,7 +93,7 @@ class ListMixin(GetMixin):
     search_classes: Tuple[Union[DependField, str], ...] = ()
     order_classes: Tuple[str, ...] = ()  # fixme: 注意要考虑一下是否支持多个排序
 
-    def init(self, router: APIRouter):  # fixme:等待修复
+    def init(self, router: APIRouter):  # fixme:等待初始化
         pass
 
     def get_list_response_schema(self):
@@ -91,7 +115,6 @@ class ListLimitOffsetMixin(ListMixin):
         # async def list(resource: str, page: LimitOffsetPaginator = Depends(limit_offset_paginator),
         #                search_fields: dict = Depends(search_depend(self.get_search_classes())),
         #                filter_fields: dict = Depends(filter_depend(self.get_filter_classes()))):
-        @router.get(self.path, response_model=self.get_list_response_schema())
         async def f(page: LimitOffsetPaginator = Depends(limit_offset_paginator),
                     search_field: Optional[SearchValue] = Depends(search_depend(self.get_search_classes())), ):
             model = get_model_from_str(self.model)
@@ -109,8 +132,15 @@ class ListLimitOffsetMixin(ListMixin):
                 "count": count,
                 "data": await queryset
             }
-        self.request_element_type[f.__name__]=ElementType.Grid
+
+        f.__name__ = self.model + "_limit_offset_list_mixin"
+        router.get(self.path, response_model=self.get_list_response_schema())(f)
+        self.request_element_type[f.__name__] = ElementType.Grid
         return f
+
+
+class RetrieveMixin(GetMixin):
+    pass
 
 
 class CreateMixin(PostMixin):
@@ -120,6 +150,9 @@ class CreateMixin(PostMixin):
         async def p(data):
             pass
 
+
+class DestoryMixin(PostMixin):
+    pass
 
 class ModelAdmin(ListLimitOffsetMixin, ):
     pass

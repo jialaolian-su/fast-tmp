@@ -205,9 +205,12 @@ admin_app = AdminApp(
 from .mixins import ListLimitOffsetMixin
 
 x = ListLimitOffsetMixin(path="/list", prefix="dd", search_classes=('name',), model="Team")
+x2 = ListLimitOffsetMixin(path='/list2', prefix="d2", model='Author')
 admin_app.register_mixin(x)
+admin_app.register_mixin(x2)
 
 from fast_tmp.utils.openapi import get_openapi
+
 print(admin_app.request_element_type)
 admin_app.openapi_schema = get_openapi(
     title=admin_app.title,
