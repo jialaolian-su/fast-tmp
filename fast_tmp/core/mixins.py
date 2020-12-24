@@ -8,10 +8,8 @@ from tortoise.query_utils import Q
 from .page import LimitOffsetPaginator, limit_offset_paginator
 from fast_tmp.choices import Method, ElementType
 from .filter import search_depend, DependField, filter_depend, SearchValue
-from ..contrib import get_user_model
 from ..utils.model import get_model_from_str
 
-User = get_user_model()
 
 
 class RequestMixin(BaseModel):
