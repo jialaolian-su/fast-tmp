@@ -33,6 +33,7 @@ class MediaMetaClass(type):
 
 class Admin(metaclass=MediaMetaClass):
     paginator = PaginatorDepends
+    model:str
     def __init__(self):
         print("init")
     def get_queryset(self):

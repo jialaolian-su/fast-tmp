@@ -7,13 +7,15 @@
 @Software: PyCharm
 @info    :
 """
-from typing import List, Dict, Type, Any, Callable, Optional
-from .mixins import RequestMixin
+from typing import Any, Callable, Dict, List, Optional, Type
+
+from fastapi import APIRouter, FastAPI
 from tortoise import Model
+
 from fast_tmp.conf import settings
-from fastapi import FastAPI, APIRouter
 
 from ..choices import ElementType
+from .mixins import RequestMixin
 
 
 class AdminApp(FastAPI):
@@ -202,23 +204,6 @@ admin_app = AdminApp(
     root_path="/admin",
     description="FastAPI Admin Dashboard based on FastAPI and Tortoise ORM.",
 )
-from .mixins import ListLimitOffsetMixin
-
-x = ListLimitOffsetMixin(path="/list", prefix="dd", search_classes=('name',), model="Team")
-x2 = ListLimitOffsetMixin(path='/list2', prefix="d2", model='Author')
-admin_app.register_mixin(x)
-admin_app.register_mixin(x2)
-
 from fast_tmp.utils.openapi import get_openapi
 
-print(admin_app.request_element_type)
-admin_app.openapi_schema = get_openapi(
-    title=admin_app.title,
-    version=admin_app.version,
-    request_elenemt_type=admin_app.request_element_type,
-    openapi_version=admin_app.openapi_version,
-    description=admin_app.description,
-    routes=admin_app.routes,
-    tags=admin_app.openapi_tags,
-    servers=admin_app.servers,
-)
+from .mixins import AimsListMixin

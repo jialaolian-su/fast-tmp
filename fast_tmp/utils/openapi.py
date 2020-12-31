@@ -7,38 +7,36 @@ from fastapi.datastructures import DefaultPlaceholder
 from fastapi.dependencies.models import Dependant
 from fastapi.dependencies.utils import get_flat_dependant, get_flat_params
 from fastapi.encoders import jsonable_encoder
-from fastapi.openapi.constants import (
-    METHODS_WITH_BODY,
-    REF_PREFIX,
-    STATUS_CODES_WITH_NO_BODY,
+from fastapi.openapi.constants import METHODS_WITH_BODY, REF_PREFIX, STATUS_CODES_WITH_NO_BODY
+from fastapi.openapi.utils import (
+    get_flat_models_from_routes,
+    get_openapi_operation_metadata,
+    get_openapi_operation_parameters,
+    get_openapi_operation_request_body,
+    get_openapi_security_definitions,
+    status_code_ranges,
+    validation_error_definition,
+    validation_error_response_definition,
 )
-from fast_tmp.schema.openapi import OpenAPI
-from fastapi.openapi.utils import get_openapi_operation_metadata, get_openapi_security_definitions, \
-    get_openapi_operation_parameters, get_openapi_operation_request_body, validation_error_definition, \
-    validation_error_response_definition, get_flat_models_from_routes, status_code_ranges
 from fastapi.params import Body, Param
-from fastapi.utils import (
-    deep_dict_update,
-    generate_operation_id_for_path,
-    get_model_definitions,
-)
+from fastapi.utils import deep_dict_update, generate_operation_id_for_path, get_model_definitions
 from pydantic import BaseModel
 from pydantic.fields import ModelField
-from pydantic.schema import (
-    field_schema,
-    get_flat_models_from_fields,
-    get_model_name_map,
-)
+from pydantic.schema import field_schema, get_flat_models_from_fields, get_model_name_map
 from pydantic.utils import lenient_issubclass
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from fast_tmp.choices import ElementType
+from fast_tmp.schema.openapi import OpenAPI
 
 
 def get_openapi_path(
-        *, route: routing.APIRoute, model_name_map: Dict[Type, str], request_elenemt_type: Dict[str, ElementType],
+    *,
+    route: routing.APIRoute,
+    model_name_map: Dict[Type, str],
+    request_elenemt_type: Dict[str, ElementType],
 ) -> Tuple[Dict, Dict, Dict]:
     path = {}
     security_schemes: Dict[str, Any] = {}
@@ -80,19 +78,18 @@ def get_openapi_path(
             if route.callbacks:
                 callbacks = {}
                 for callback in route.callbacks:
-                    cb_path, cb_security_schemes, cb_definitions, = get_openapi_path(
-                        route=callback, model_name_map=model_name_map
-                    )
+                    (
+                        cb_path,
+                        cb_security_schemes,
+                        cb_definitions,
+                    ) = get_openapi_path(route=callback, model_name_map=model_name_map)
                     callbacks[callback.name] = {callback.path: cb_path}
                 operation["callbacks"] = callbacks
             status_code = str(route.status_code)
             operation.setdefault("responses", {}).setdefault(status_code, {})[
                 "description"
             ] = route.response_description
-            if (
-                    route_response_media_type
-                    and route.status_code not in STATUS_CODES_WITH_NO_BODY
-            ):
+            if route_response_media_type and route.status_code not in STATUS_CODES_WITH_NO_BODY:
                 response_schema = {"type": "string"}
                 if lenient_issubclass(current_response_class, JSONResponse):
                     if route.response_field:
@@ -103,25 +100,21 @@ def get_openapi_path(
                         )
                     else:
                         response_schema = {}
-                operation.setdefault("responses", {}).setdefault(
-                    status_code, {}
-                ).setdefault("content", {}).setdefault(route_response_media_type, {})[
-                    "schema"
-                ] = response_schema
+                operation.setdefault("responses", {}).setdefault(status_code, {}).setdefault(
+                    "content", {}
+                ).setdefault(route_response_media_type, {})["schema"] = response_schema
             if route.responses:
                 operation_responses = operation.setdefault("responses", {})
                 for (
-                        additional_status_code,
-                        additional_response,
+                    additional_status_code,
+                    additional_response,
                 ) in route.responses.items():
                     process_response = additional_response.copy()
                     process_response.pop("model", None)
                     status_code_key = str(additional_status_code).upper()
                     if status_code_key == "DEFAULT":
                         status_code_key = "default"
-                    openapi_response = operation_responses.setdefault(
-                        status_code_key, {}
-                    )
+                    openapi_response = operation_responses.setdefault(status_code_key, {})
                     assert isinstance(
                         process_response, dict
                     ), "An additional response must be a dict"
@@ -134,34 +127,29 @@ def get_openapi_path(
                         media_type = route_response_media_type or "application/json"
                         additional_schema = (
                             process_response.setdefault("content", {})
-                                .setdefault(media_type, {})
-                                .setdefault("schema", {})
+                            .setdefault(media_type, {})
+                            .setdefault("schema", {})
                         )
                         deep_dict_update(additional_schema, additional_field_schema)
                     status_text: Optional[str] = status_code_ranges.get(
                         str(additional_status_code).upper()
                     ) or http.client.responses.get(int(additional_status_code))
                     description = (
-                            process_response.get("description")
-                            or openapi_response.get("description")
-                            or status_text
-                            or "Additional Response"
+                        process_response.get("description")
+                        or openapi_response.get("description")
+                        or status_text
+                        or "Additional Response"
                     )
                     deep_dict_update(openapi_response, process_response)
                     openapi_response["description"] = description
             http422 = str(HTTP_422_UNPROCESSABLE_ENTITY)
             if (all_route_params or route.body_field) and not any(
-                    [
-                        status in operation["responses"]
-                        for status in [http422, "4XX", "default"]
-                    ]
+                [status in operation["responses"] for status in [http422, "4XX", "default"]]
             ):
                 operation["responses"][http422] = {
                     "description": "Validation Error",
                     "content": {
-                        "application/json": {
-                            "schema": {"$ref": REF_PREFIX + "HTTPValidationError"}
-                        }
+                        "application/json": {"schema": {"$ref": REF_PREFIX + "HTTPValidationError"}}
                     },
                 }
                 if "ValidationError" not in definitions:
@@ -171,21 +159,21 @@ def get_openapi_path(
                             "HTTPValidationError": validation_error_response_definition,
                         }
                     )
-            operation['element_type'] = request_elenemt_type.get(route.name, ElementType.Null)
+            operation["element_type"] = request_elenemt_type.get(route.name, ElementType.Null)
             path[method.lower()] = operation
     return path, security_schemes, definitions
 
 
 def get_openapi(
-        *,
-        title: str,
-        version: str,
-        request_elenemt_type: Optional[Dict[str, ElementType]] = None,
-        openapi_version: str = "3.0.2",
-        description: Optional[str] = None,
-        routes: Sequence[BaseRoute],
-        tags: Optional[List[Dict[str, Any]]] = None,
-        servers: Optional[List[Dict[str, Union[str, Any]]]] = None,
+    *,
+    title: str,
+    version: str,
+    request_elenemt_type: Optional[Dict[str, ElementType]] = None,
+    openapi_version: str = "3.0.2",
+    description: Optional[str] = None,
+    routes: Sequence[BaseRoute],
+    tags: Optional[List[Dict[str, Any]]] = None,
+    servers: Optional[List[Dict[str, Union[str, Any]]]] = None,
 ) -> Dict:
     info = {"title": title, "version": version}
     if description:
@@ -204,16 +192,17 @@ def get_openapi(
     )
     for route in routes:
         if isinstance(route, routing.APIRoute):
-            result = get_openapi_path(route=route, model_name_map=model_name_map,
-                                      request_elenemt_type=request_elenemt_type)
+            result = get_openapi_path(
+                route=route,
+                model_name_map=model_name_map,
+                request_elenemt_type=request_elenemt_type,
+            )
             if result:
                 path, security_schemes, path_definitions = result
                 if path:
                     paths.setdefault(route.path_format, {}).update(path)
                 if security_schemes:
-                    components.setdefault("securitySchemes", {}).update(
-                        security_schemes
-                    )
+                    components.setdefault("securitySchemes", {}).update(security_schemes)
                 if path_definitions:
                     definitions.update(path_definitions)
     if definitions:

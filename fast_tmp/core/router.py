@@ -13,9 +13,9 @@ from fastapi import APIRouter, Depends
 
 from .page import limit_offset_paginator
 
-router = APIRouter(prefix='/rest')
+router = APIRouter(prefix="/rest")
 
 
-@router.get('/{model_name}')
+@router.get("/{model_name}")
 async def list(page: Tuple[int, int] = Depends(limit_offset_paginator), **kwargs):
     pass

@@ -7,15 +7,13 @@
 @Software: PyCharm
 @info    :
 """
-from typing import Tuple
-
 from pydantic.main import BaseModel
 
 
-class LimitOffsetPaginator(BaseModel):
-    limit: int
-    offset: int
+class AmisPaginator(BaseModel):
+    page: int
+    perPage: int
 
 
-def limit_offset_paginator(limit: int = 10, offset: int = 0) -> LimitOffsetPaginator:
-    return LimitOffsetPaginator(limit=limit, offset=offset)
+def amis_paginator(page: int = 1, perPage: int = 10) -> AmisPaginator:
+    return AmisPaginator(page=page, perPage=perPage)
