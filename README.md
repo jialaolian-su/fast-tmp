@@ -7,6 +7,7 @@
 
 项目正在积极开发中，该项目主要是为之后的fastapi开发做准备。
 
+(清理tortoise-orm中，用sqlalchemy替换)
 ## 目标
 
 1. 集成admin管理页面

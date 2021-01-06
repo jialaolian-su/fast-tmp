@@ -16,13 +16,12 @@ include = ["LICENSE", "README.md"]
 python = "^3.7"
 python-dotenv = "^0.15.0"
 fastapi = "^0.62.0"
-tortoise-orm = "^0.16.18"
 watchgod = "^0.6"
 typer = "^0.3.2"
 uvicorn = "^0.12.3"
 python-multipart = "^0.0.5"
-aerich = { git = "https://github.com/Chise1/aerich.git", branch = "dev" }
-mypy = "^0.790"
+sqlalchemy = "^1.4.0b1"
+alembic = "^1.4.3"
 
 
 [tool.poetry.dev-dependencies]
