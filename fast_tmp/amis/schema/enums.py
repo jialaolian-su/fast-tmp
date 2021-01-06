@@ -51,9 +51,15 @@ class TypeEnum(str, Enum):
     button = "button"
     action = "action"  # 行为按钮
     form = "form"
+    operation = "operation"  # 这是啥？？
+    hbox = "hbox"
+    nav = "nav"
 
 
-class ButtonSize(str, Enum):
+class ButtonSize(
+    str,
+    Enum,
+):
     lg = "lg"  # 大
     md = "md"  # 中,默认值
     sm = "sm"  # 小
@@ -67,7 +73,3 @@ class DialogSize(str, Enum):
     sm = "sm"  # 小
     xl = "xl"
     xs = "xs"  # 极小
-
-
-class ControlEnum(str, Enum):
-    text = "text"

@@ -16,7 +16,14 @@ class _Action(BaseAmisModel):
     type = TypeEnum.action
     label: str
     actionType: ActionTypeEnum
-    icon: Optional[str] = None
+    icon: Optional[str]
     size: ButtonSize = ButtonSize.md
     level: ButtonLevelEnum = ButtonLevelEnum.primary
-    tooltip: Optional[str] = None  # 鼠标挪上去的提示
+    tooltip: Optional[str]  # 鼠标挪上去的提示
+
+
+class Message(BaseModel):
+    fetchSucss: Optional[str]
+    fetchFailed: Optional[str]
+    saveSuccess: Optional[str]
+    saveFailed: Optional[str]

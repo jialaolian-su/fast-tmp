@@ -1,12 +1,8 @@
 import os
 import sys
 
-from fastapi import FastAPI, Request
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from starlette import status
-from starlette.responses import JSONResponse
 
 from fast_tmp.api.auth import auth_router
 from fast_tmp.api.auth2 import auth2_router
@@ -20,13 +16,6 @@ def get_dir():
 
 
 DIR = get_dir()
-
-
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
-    )
 
 
 def create_fast_tmp_app():

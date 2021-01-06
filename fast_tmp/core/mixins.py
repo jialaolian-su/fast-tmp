@@ -9,9 +9,9 @@ from tortoise.query_utils import Q
 from fast_tmp.amis.schema.abstract_schema import AmisModel
 from fast_tmp.amis.schema.crud import CRUD
 from fast_tmp.amis.utils import get_coulmns_from_pqc
+from fast_tmp.amis_router import AmisRouter
 from fast_tmp.choices import ElementType, Method
 from fast_tmp.conf import settings
-from fast_tmp.core.amis_router import AmisRouter
 from fast_tmp.core.filter import DependField, filter_depend, search_depend
 from fast_tmp.core.page import AmisPaginator, amis_paginator
 from fast_tmp.utils.model import get_model_from_str
@@ -24,7 +24,6 @@ class RequestMixin(BaseModel):
     额外的请求混入
     """
 
-    method: Method
     path: str
     # detail: bool
     response_schema: Optional[BaseModel] = None
@@ -54,13 +53,11 @@ class RequestMixin(BaseModel):
 
 
 class GetMixin(RequestMixin):
-    method = Method.GET
     pass
 
 
 class PostMixin(RequestMixin):
-    method = Method.POST
-    model: str
+    model_str: str
     post_include_fileds: List[str] = []
     post_exclude_fields: List[str] = []  # fixme:考虑把枚举作为请求接口进行返回
 
@@ -71,21 +68,19 @@ class PostMixin(RequestMixin):
         pass
 
 
-# class DeleteMixin(RequestMixin):
-#     method = Method.DELETE
-#     model: str
-#
-#     def init(self, router: Union[APIRouter, FastAPI]):
-#         async def f(pk: str):
-#             model = get_model_from_str(self.get)
-#             await model.filter(pk=pk).delete()  # fixime:记得测试是否触发信号
-#
-#         f.__name__ = self.model + "_delete_mixin"
-#         self.request_element_type[f.__name__] = ElementType.Null
-#         router.delete(
-#             self.path,
-#         )(f)
-#         return f
+class DeleteMixin(RequestMixin):
+    model_str: str
+
+    def init(self, router: AmisRouter):
+        async def f(pk: str):
+            model = get_model_from_str(self.model_str)
+            await model.filter(pk=pk).delete()  # fixime:记得测试是否触发信号
+
+        f.__name__ = self.model_str + "_delete_mixin"
+        router.delete(
+            self.path,
+        )(f)
+        return f
 
 
 # fixme；需要重构为支持amis的结构

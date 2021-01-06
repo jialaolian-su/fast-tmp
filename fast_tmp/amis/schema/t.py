@@ -1,6 +1,7 @@
+from fast_tmp.amis.schema.forms.widgets import Column
+
 from .amislist import AmisList
 from .crud import CRUD
-from .widgets import Column
 
 x = AmisList(
     body=CRUD(

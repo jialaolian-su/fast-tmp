@@ -29,7 +29,16 @@
       (function () {
         let amis = amisRequire('amis/embed');
         // 通过替换下面这个配置来生成不同页面
-        let amisScoped = amis.embed('#root', {% block amis_data %}{}{% endblock %})})();
+        let amisScoped = amis.embed('#root', {% block amis_data %}{}{% endblock %},
+        {% block env %}
+        {
+        locale:'zh-hans'
+        },
+        {% endblock %}
+        {% block ajax %}
+
+        {% endblock %}
+        )})();
 </script>
 </body>
 </html>

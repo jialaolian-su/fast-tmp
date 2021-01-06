@@ -71,24 +71,24 @@ class ChoicesMeta(enum.EnumMeta):
         return [value for value, _ in cls.choices]
 
 
-class Choices(enum.Enum, metaclass=ChoicesMeta):
-    """Class for creating enumerated choices."""
+# class Choices(enum.Enum, metaclass=ChoicesMeta):
+#     """Class for creating enumerated choices."""
+#
+#     def __str__(self):
+#         """
+#         Use value when cast to str, so that Choices set as model instance
+#         attributes are rendered as expected in templates and similar contexts.
+#         """
+#         return str(self.value)
 
-    def __str__(self):
-        """
-        Use value when cast to str, so that Choices set as model instance
-        attributes are rendered as expected in templates and similar contexts.
-        """
-        return str(self.value)
 
-
-class IntEnumType(int, Choices):
+class IntEnumType(enum.IntEnum, metaclass=ChoicesMeta):
     """Class for creating enumerated integer choices."""
 
     pass
 
 
-class CharEnumType(str, Choices):
+class CharEnumType(str, enum.Enum, metaclass=ChoicesMeta):
     """Class for creating enumerated string choices."""
 
     def _generate_next_value_(name, start, count, last_values):

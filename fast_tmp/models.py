@@ -6,7 +6,7 @@ from fast_tmp.conf import settings
 from fast_tmp.utils.password import make_password, verify_password
 
 
-class AbstractUser(models.Model):
+class User(models.Model):
     username = fields.CharField(max_length=20, unique=True)
     password = fields.CharField(
         max_length=200,
@@ -15,6 +15,7 @@ class AbstractUser(models.Model):
         default=True,
     )
     is_superuser = fields.BooleanField(default=False)
+
     groups: fields.ManyToManyRelation["Group"]
 
     def set_password(self, raw_password: str):
@@ -33,18 +34,21 @@ class AbstractUser(models.Model):
         """
         return verify_password(raw_password, self.password)
 
+    def has_perm(self, perm: "Permission"):
+        """
+        判定用户是否有权限
+        """
+        pass
+
     def __str__(self):
         return self.username
 
-    class Meta:
-        abstract = True
+    # class Meta:
+    #     abstract = True
 
 
-# 采用引用方式使用，只要再主models里面引入这三个model，就能创建对应表
-if settings.AUTH_USER_MODEL == "models.User":
-
-    class User(AbstractUser):
-        pass
+# class User(AbstractUser):
+#     pass
 
 
 class Permission(models.Model):
@@ -97,7 +101,7 @@ class Permission(models.Model):
 
 class Group(models.Model):
     label = fields.CharField(max_length=50)
-    users = fields.ManyToManyField(settings.AUTH_USER_MODEL)
+    users = fields.ManyToManyField("models.User")
     permissions = fields.ManyToManyField("models.Permission")
 
     def __str__(self):
