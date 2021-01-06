@@ -13,41 +13,14 @@ import os
 import sys
 from typing import Optional
 
-import sentry_sdk
+# import sentry_sdk
 from pydantic import BaseSettings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-class __Settings(BaseSettings):
-    API_SECRET: str
-    ADMIN_SECRET: str
-    DB_HOST: str = "127.0.0.1"
-    DB_PORT: int = 3306
-    DB_USER: str
-    DB_NAME: str
-    DB_PASSWORD: str
-    SERVER_URL: str
-    DEBUG: bool = False
-    PROJECT_CODE: str = "AUDIT"
-    SENTRY_DSN: Optional[str] = None
-
-    class Config:
-        env_file = '.env'
-
-
-# settings = __Settings()
-# if settings.SENTRY_DSN:  # 如果配置了sentry，则启动相关的服务
-#     from sentry_sdk.integrations.redis import RedisIntegration
-#
-#     sentry_sdk.init(
-#         dsn=settings.SENTRY_DSN,
-#         environment=os.getenv("ENVIRONMENT", "development"),
-#         integrations=[RedisIntegration()],
-#     )
 DEBUG = os.getenv("DEBUG") == "True"
 PROJECT_CODE = "AUDIT"
-
+SECRET_KEY="asdfadagre"
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_PORT = os.getenv("DB_PORT", 3306)
 DB_USER = os.getenv("DB_USER",'example')

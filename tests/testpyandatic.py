@@ -12,7 +12,9 @@ from pydantic.main import BaseModel
 
 
 class A(BaseModel):
-    a: str = Field(..., )
+    a: str = Field(
+        ...,
+    )
 
 
 a = A(a="4")
@@ -20,6 +22,8 @@ a = A(a="4")
 
 class B(A):
     a: int
-b=B(a=3)
+
+
+b = B(a=3)
 print(a.dict())
 print(b.dict())

@@ -1,25 +1,21 @@
 from typing import Type
-from fast_tmp.conf import settings
-from fast_tmp.utils.password import make_password, verify_password
-import asyncio
 
-from sqlalchemy import Column, Table,ForeignKey
-from sqlalchemy import Integer, String, Boolean
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.future import select
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import selectinload
+
+from fast_tmp.utils.password import make_password, verify_password
 
 Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = "user"
     id = Column(Integer, primary_key=True)
     username = Column(String(128), unique=True)
-    password = Column(String(200), )
+    password = Column(
+        String(200),
+    )
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=True)
 
@@ -50,7 +46,7 @@ class User(Base):
 
 
 class Permission(Base):
-    __tablename__='permission'
+    __tablename__ = "permission"
     id = Column(Integer, primary_key=True)
     label = Column(String(128))
     codename = Column(String(128), unique=True)
@@ -60,8 +56,8 @@ class Permission(Base):
 
     @classmethod
     def make_permission(
-            cls,
-            model: Type[Base],
+        cls,
+        model: Type[Base],
     ):
         """
         生成model对应的权限
@@ -98,30 +94,39 @@ class Permission(Base):
 
 
 class Group(Base):
-    __tablename__='group'
+    __tablename__ = "group"
     id = Column(Integer, primary_key=True)
-    label = Column(String(128), )
+    label = Column(
+        String(128),
+    )
 
     users = relationship(
         "User",
-        secondary=Table('group_user', Base.metadata,
-                        Column("user_id", Integer, ForeignKey('user.id'),
-                               primary_key=True),
-                        Column("group_id", Integer, ForeignKey('group.id'),
-                               primary_key=True)
-                        ),
-        backref="groups"
+        secondary=Table(
+            "group_user",
+            Base.metadata,
+            Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
+            Column("group_id", Integer, ForeignKey("group.id"), primary_key=True),
+        ),
+        backref="groups",
     )
     permissions = relationship(
         "Permission",
-        secondary=Table('group_permission', Base.metadata,
-                        Column("group_id", Integer, ForeignKey('group.id'),
-                               primary_key=True),
-                        Column("permission_id", Integer, ForeignKey('permission.id'),
-                               primary_key=True)
-                        ),
-        backref="permisions"
+        secondary=Table(
+            "group_permission",
+            Base.metadata,
+            Column("group_id", Integer, ForeignKey("group.id"), primary_key=True),
+            Column("permission_id", Integer, ForeignKey("permission.id"), primary_key=True),
+        ),
+        backref="permisions",
     )
 
     def __str__(self):
         return self.label
+
+
+class AdminLog(Base):
+    __tablename__ = "adminlog"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"))
+    user = relationship("User")

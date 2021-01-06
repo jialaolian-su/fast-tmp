@@ -21,11 +21,8 @@ class PlaneItem(BaseItem):
 
 
 items = {
-
-    "item1": {
-        "description": "All my friends drive a low rider", "type": "car"},
+    "item1": {"description": "All my friends drive a low rider", "type": "car"},
     "item2": {
-
         "description": "Music is my aeroplane, it's my aeroplane",
         "type": "plane",
         "size": 5,
@@ -34,8 +31,6 @@ items = {
 
 
 @app.get("/items/{item_id}", response_model=Union[PlaneItem, CarItem])
-
-
 async def read_item(item_id: str):
     return items[item_id]
 
@@ -43,6 +38,4 @@ async def read_item(item_id: str):
 import uvicorn
 
 if __name__ == "__main__":
-    uvicorn.run(
-        app=app, host="0.0.0.0", port=8000, lifespan="on"
-    )
+    uvicorn.run(app=app, host="0.0.0.0", port=8000, lifespan="on")
