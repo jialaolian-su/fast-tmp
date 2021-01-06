@@ -1,22 +1,27 @@
 from typing import Type
-
-from tortoise import fields, models
-
 from fast_tmp.conf import settings
 from fast_tmp.utils.password import make_password, verify_password
+import asyncio
+
+from sqlalchemy import Column, Table,ForeignKey
+from sqlalchemy import Integer, String, Boolean
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.future import select
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import selectinload
+
+Base = declarative_base()
 
 
-class User(models.Model):
-    username = fields.CharField(max_length=20, unique=True)
-    password = fields.CharField(
-        max_length=200,
-    )
-    is_active = fields.BooleanField(
-        default=True,
-    )
-    is_superuser = fields.BooleanField(default=False)
-
-    groups: fields.ManyToManyRelation["Group"]
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(128), unique=True)
+    password = Column(String(200), )
+    is_active = Column(Boolean, default=True)
+    is_superuser = Column(Boolean, default=True)
 
     def set_password(self, raw_password: str):
         """
@@ -43,27 +48,20 @@ class User(models.Model):
     def __str__(self):
         return self.username
 
-    # class Meta:
-    #     abstract = True
 
-
-# class User(AbstractUser):
-#     pass
-
-
-class Permission(models.Model):
-    label = fields.CharField(max_length=128)
-    model = fields.CharField(max_length=128)
-    codename = fields.CharField(max_length=128, unique=True)
-    groups: fields.ManyToManyRelation["Group"]
+class Permission(Base):
+    __tablename__='permission'
+    id = Column(Integer, primary_key=True)
+    label = Column(String(128))
+    codename = Column(String(128), unique=True)
 
     def __str__(self):
         return self.label
 
     @classmethod
     def make_permission(
-        cls,
-        model: Type[models.Model],
+            cls,
+            model: Type[Base],
     ):
         """
         生成model对应的权限
@@ -99,10 +97,31 @@ class Permission(models.Model):
         )
 
 
-class Group(models.Model):
-    label = fields.CharField(max_length=50)
-    users = fields.ManyToManyField("models.User")
-    permissions = fields.ManyToManyField("models.Permission")
+class Group(Base):
+    __tablename__='group'
+    id = Column(Integer, primary_key=True)
+    label = Column(String(128), )
+
+    users = relationship(
+        "User",
+        secondary=Table('group_user', Base.metadata,
+                        Column("user_id", Integer, ForeignKey('user.id'),
+                               primary_key=True),
+                        Column("group_id", Integer, ForeignKey('group.id'),
+                               primary_key=True)
+                        ),
+        backref="groups"
+    )
+    permissions = relationship(
+        "Permission",
+        secondary=Table('group_permission', Base.metadata,
+                        Column("group_id", Integer, ForeignKey('group.id'),
+                               primary_key=True),
+                        Column("permission_id", Integer, ForeignKey('permission.id'),
+                               primary_key=True)
+                        ),
+        backref="permisions"
+    )
 
     def __str__(self):
         return self.label
