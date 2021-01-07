@@ -4,8 +4,6 @@ import sys
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-# from fast_tmp.api.auth import auth_router
-# from fast_tmp.api.auth2 import auth2_router
 from fast_tmp.conf import settings
 
 paths = sys.path
