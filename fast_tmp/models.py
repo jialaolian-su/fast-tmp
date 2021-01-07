@@ -8,14 +8,17 @@ from sqlalchemy.orm import relationship
 from fast_tmp.utils.password import make_password, verify_password
 
 Base = declarative_base()
+
+
 class ControlSer(BaseModel):
-    label:str
-    name:str
-    type:str
+    label: str
+    name: str
+    type: str
+
 
 class User(Base):
     __tablename__ = "user"
-    id = Column(Integer, primary_key=True,info={"kwargs":"ddd"})
+    id = Column(Integer, primary_key=True, info={"kwargs": "ddd"})
     username = Column(String(128), unique=True)
     password = Column(
         String(200),

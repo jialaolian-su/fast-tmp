@@ -5,7 +5,7 @@ import hashlib
 from fast_tmp.conf import settings
 
 
-def make_password(raw_password: str) -> (str, str):
+def make_password(raw_password: str) -> str:
     """
     加密密码,返回加密的密码值和随机盐
     :param raw_password:
