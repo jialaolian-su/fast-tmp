@@ -1,5 +1,6 @@
 from typing import Type
 
+from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -7,11 +8,14 @@ from sqlalchemy.orm import relationship
 from fast_tmp.utils.password import make_password, verify_password
 
 Base = declarative_base()
-
+class ControlSer(BaseModel):
+    label:str
+    name:str
+    type:str
 
 class User(Base):
     __tablename__ = "user"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True,info={"kwargs":"ddd"})
     username = Column(String(128), unique=True)
     password = Column(
         String(200),

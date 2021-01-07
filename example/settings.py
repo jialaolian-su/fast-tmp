@@ -17,15 +17,15 @@ from typing import Optional
 from pydantic import BaseSettings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+DATABASE_URL = "postgresql+asyncpg://dbuser:shiguang123@localhost/fast_tmp"
 DEBUG = os.getenv("DEBUG") == "True"
 PROJECT_CODE = "AUDIT"
-SECRET_KEY="asdfadagre"
+SECRET_KEY = "asdfadagre"
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_PORT = os.getenv("DB_PORT", 3306)
-DB_USER = os.getenv("DB_USER",'example')
-DB_NAME = os.getenv("DB_NAME",'example')
-DB_PASSWORD = os.getenv("DB_PASSWORD",'mnbvcxz123')
+DB_USER = os.getenv("DB_USER", 'example')
+DB_NAME = os.getenv("DB_NAME", 'example')
+DB_PASSWORD = os.getenv("DB_PASSWORD", 'mnbvcxz123')
 SERVER_URL = os.getenv("SERVER_URL")
 
 TORTOISE_ORM = {
