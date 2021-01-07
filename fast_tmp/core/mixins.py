@@ -2,9 +2,7 @@ from typing import Dict, List, Optional, Tuple, Type, Union, cast
 
 from fastapi import APIRouter, Depends, FastAPI
 from pydantic import BaseModel
-from tortoise import Model
-from tortoise.contrib.pydantic import PydanticModel, pydantic_queryset_creator
-from tortoise.query_utils import Q
+
 
 from fast_tmp.amis.schema.abstract_schema import AmisModel
 from fast_tmp.amis.schema.crud import CRUD
