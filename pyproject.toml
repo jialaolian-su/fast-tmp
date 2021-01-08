@@ -25,6 +25,7 @@ databases = "^0.4.1"
 asyncpg = "^0.21.0"
 psycopg2 = "^2.8.6"
 redis = "^3.5.3"
+pydantic-sqlalchemy = "^0.0.8"
 
 
 [tool.poetry.dev-dependencies]
