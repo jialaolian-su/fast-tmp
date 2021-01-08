@@ -24,6 +24,7 @@ alembic = "^1.4.3"
 databases = "^0.4.1"
 asyncpg = "^0.21.0"
 psycopg2 = "^2.8.6"
+redis = "^3.5.3"
 
 
 [tool.poetry.dev-dependencies]
