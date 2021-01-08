@@ -6,8 +6,7 @@ authors = ["chise <chise123@live.com>"]
 license = "Apache-2.0"
 repository = "https://github.com/Chise1/fast-tmp"
 packages = [
-    { include = "fast_tmp" },
-    { include = "cache" }
+    { include = "fast_tmp" }
 ]
 include = ["LICENSE", "README.md"]
 

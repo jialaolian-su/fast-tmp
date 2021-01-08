@@ -1,8 +1,5 @@
 from typing import List, Tuple, Type
 
-from fast_tmp.amis.schema.forms import Column as FastColumn
-from fast_tmp.amis.schema.forms import Control, FormWidgetSize, ItemModel
-from fast_tmp.amis.schema.forms.widgets import NumberItem
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import ColumnProperty
 
@@ -28,6 +25,10 @@ from sqlalchemy.types import (
     Text,
     Time,
 )
+
+from fast_tmp.amis.schema.forms import Column as FastColumn
+from fast_tmp.amis.schema.forms import Control, FormWidgetSize, ItemModel
+from fast_tmp.amis.schema.forms.widgets import NumberItem
 
 
 def _get_base_attr(column) -> dict:
@@ -123,8 +124,12 @@ def create_column(column) -> FastColumn:
 
 
 def sqlalchemy_to_control(
-        db_model: Type, *, include: Tuple[str] = (), exclude: Tuple[str] = (), add_type: bool = False,
-        add_default_value: bool = False,
+    db_model: Type,
+    *,
+    include: Tuple[str] = (),
+    exclude: Tuple[str] = (),
+    add_type: bool = False,
+    add_default_value: bool = False,
 ) -> List[Control]:
     mapper = inspect(db_model)
     res = []

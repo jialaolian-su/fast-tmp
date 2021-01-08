@@ -3,7 +3,6 @@ from typing import Dict, List, Optional, Tuple, Type, Union, cast
 from fastapi import APIRouter, Depends, FastAPI
 from pydantic import BaseModel
 
-
 from fast_tmp.amis.schema.abstract_schema import AmisModel
 from fast_tmp.amis.schema.crud import CRUD
 from fast_tmp.amis.utils import get_coulmns_from_pqc

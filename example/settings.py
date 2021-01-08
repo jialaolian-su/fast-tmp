@@ -12,48 +12,33 @@ import logging
 import os
 import sys
 from typing import Optional
-
+import sentry_sdk
 # import sentry_sdk
-from pydantic import BaseSettings
+import os
+import dotenv
+from sentry_sdk.integrations.redis import RedisIntegration
 
+dotenv.load_dotenv()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_URL = "postgresql+asyncpg://dbuser:shiguang123@localhost/fast_tmp"
+DATABASE_URL =os.getenv("DATABASE_URL")
 DEBUG = os.getenv("DEBUG") == "True"
 PROJECT_CODE = "AUDIT"
 SECRET_KEY = "asdfadagre"
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
-DB_PORT = os.getenv("DB_PORT", 3306)
-DB_USER = os.getenv("DB_USER", 'example')
-DB_NAME = os.getenv("DB_NAME", 'example')
-DB_PASSWORD = os.getenv("DB_PASSWORD", 'mnbvcxz123')
-SERVER_URL = os.getenv("SERVER_URL")
 
-TORTOISE_ORM = {
-    "connections": {
-        "default": {
-            "engine": "tortoise.backends.mysql",
-            "credentials": {
-                "host": DB_HOST,
-                "port": DB_PORT,
-                "user": DB_USER,
-                "password": DB_PASSWORD,
-                "database": DB_NAME,
-                "echo": os.getenv("DB_ECHO") == "True",
-                "maxsize": 10,
-            },
-        },
-    },
-    "apps": {
-        "models": {
-            "models": ["example.models", "aerich.models", "fast_tmp.models"],
-            "default_connection": "default",
-        },
-    },
-}
+
+SERVER_URL = os.getenv("SERVER_URL")
 
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    environment=os.getenv("ENVIRONMENT", "development"),
+    integrations=[RedisIntegration()],
+)
+
+
 
 REDIS = {
     "host": REDIS_HOST,
