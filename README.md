@@ -6,8 +6,15 @@
 整体功能和django-admin类似，但是更加强大。得益于百度的AMIS项目，能够通过json生成页面，才有本项目的效果。
 
 项目正在积极开发中，该项目主要是为之后的fastapi开发做准备。
+note:项目正在清理tortoise-orm中。
 
-(清理tortoise-orm中，用sqlalchemy替换)
+# example启动方法
+
+1. 把.env_example改为.env
+2. 使用alembic初始化数据库（注意，执行之前需要添加环境变量：FASTAPI_SETTINGS_MODULE=example.settings）
+3. 启动main.py
+
+
 ## 目标
 
 1. 集成admin管理页面
@@ -28,7 +35,7 @@ from tortoise.contrib.pydantic import pydantic_queryset_creator
 from fast_tmp.amis.schema.crud import CRUD
 from fast_tmp.amis.utils import get_coulmns_from_pqc
 from fast_tmp.conf import settings
-from fast_tmp.core.amis_router import AmisRouter
+from fast_tmp.amis_router import AmisRouter
 from fast_tmp.utils.model import get_model_from_str
 
 User = get_model_from_str(settings.AUTH_USER_MODEL)
