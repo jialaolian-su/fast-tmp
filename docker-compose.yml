@@ -2,6 +2,8 @@ version: '3'
 services:
   fast-tmp:
     build: .
+    environment:
+      FASTAPI_SETTINGS_MODULE=example.settings
     env_file:
       - .rancher_env
     ports:
@@ -21,4 +23,4 @@ services:
     image: postgres
     privileged: true
     volumes:
-    - ./pg_data/data:/var/lib/postgresql/data/pgdata
+      - ./pg_data/data:/var/lib/postgresql/data/pgdata
