@@ -68,6 +68,7 @@ sh.setFormatter(
         fmt="%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+
 )
 LOGGER.addHandler(sh)
 
