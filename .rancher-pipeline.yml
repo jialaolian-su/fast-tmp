@@ -2,6 +2,6 @@ stages:
 - name: 打包docker
   steps:
   - applyYamlConfig:
-      path: ./docker-compose.yaml
+      path: ./docker-compose.yml
 timeout: 60
 notification: {}
