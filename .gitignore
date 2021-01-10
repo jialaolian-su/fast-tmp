@@ -133,3 +133,4 @@ aerich.ini
 pip_outline/
 alembic.ini
 alembic/
+*.rdb
