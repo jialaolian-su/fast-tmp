@@ -6,9 +6,5 @@ stages:
       buildContext: .
       tag: fast-tmp
       registry: 127.0.0.1:34209
-- name: 执行服务
-  steps:
-  - applyYamlConfig:
-      path: ./docker-compose.yaml
 timeout: 60
 notification: {}
