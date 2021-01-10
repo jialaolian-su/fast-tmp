@@ -1,7 +1,10 @@
 stages:
-- name: 安装环境
+- name: 生成镜像
   steps:
-  - applyYamlConfig:
-      path: ./docker-compose.yml
+  - publishImageConfig:
+      dockerfilePath: ./Dockerfile
+      buildContext: .
+      tag: fast-tmp
+      registry: 127.0.0.1:34209
 timeout: 60
 notification: {}
