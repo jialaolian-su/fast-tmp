@@ -1,10 +1,7 @@
 stages:
 - name: 安装环境
   steps:
-  - runScriptConfig:
-      image: python:3.8
-      shellScript: |-
-        pip3 install docker-compose
-        docker-compose build
+  - applyYamlConfig:
+      path: ./docker-compose.yml
 timeout: 60
 notification: {}
