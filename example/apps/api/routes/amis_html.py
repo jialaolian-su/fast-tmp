@@ -19,13 +19,13 @@ from fast_tmp.amis.schema.actions import AjaxAction, DialogAction, DrawerAction
 from fast_tmp.amis.schema.buttons import Operation
 from fast_tmp.amis.schema.crud import CRUD
 from fast_tmp.amis.schema.enums import ButtonLevelEnum
-from fast_tmp.amis.schema.form import Form
+from fast_tmp.amis.schema.forms import Form
 from fast_tmp.amis.schema.frame import Dialog, Drawer
 from fast_tmp.amis.utils import get_coulmns_from_pmc, get_coulmns_from_pqc
 from fast_tmp.amis_router import AmisRouter
 from fast_tmp.conf import settings
-from src.models import Message
-from src.schemas import ResMessageList, message_list_schema, message_schema
+from example.models import Message
+from example.schemas import ResMessageList, message_list_schema, message_schema
 
 router = AmisRouter(prefix="/amis")
 
