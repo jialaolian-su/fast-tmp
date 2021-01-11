@@ -2,13 +2,14 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.applications import Starlette
 
 from example import rearq
+from fast_tmp.amis_app import AmisAPI
 from fast_tmp.conf import settings
-from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from fast_tmp import factory
 from tortoise import Tortoise
 
 from fast_tmp.redis import AsyncRedisUtil
+
 
 @rearq.on_startup
 async def on_startup():
@@ -36,9 +37,9 @@ def init_app(main_app: Starlette):
         await rearq.close()
 
 
-def create_app():
-    app = FastAPI(debug=settings.DEBUG)
-    r_app=factory.create_fast_tmp_app()
+def create_app() -> AmisAPI:
+    app = AmisAPI(title='fast_tmp example',debug=settings.DEBUG)
+    r_app = factory.create_fast_tmp_app()
     app.mount(settings.FAST_TMP_URL, r_app)
     app.add_middleware(
         CORSMiddleware,

@@ -42,7 +42,6 @@ DB_PORT = os.getenv("DB_PORT", 3306)
 DB_USER = os.getenv("DB_USER", 'example')
 DB_NAME = os.getenv("DB_NAME", 'example2')
 DB_PASSWORD = os.getenv("DB_PASSWORD", 'mnbvcxz123')
-
 TORTOISE_ORM = {
     "connections": {
         "default": {
@@ -53,7 +52,7 @@ TORTOISE_ORM = {
                 "user": DB_USER,
                 "password": DB_PASSWORD,
                 "database": DB_NAME,
-                "echo": os.getenv("DB_ECHO") == "True",
+                "echo": True,
                 "maxsize": 10,
             },
         },
@@ -82,19 +81,19 @@ REARQ = {
 }
 
 # logging
-LOGGER = logging.getLogger("example")
-if DEBUG:
-    LOGGER.setLevel(logging.DEBUG)
-else:
-    LOGGER.setLevel(logging.INFO)
-sh = logging.StreamHandler(sys.stdout)
-sh.setLevel(logging.DEBUG)
-sh.setFormatter(
-    logging.Formatter(
-        fmt="%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-)
-LOGGER.addHandler(sh)
+# LOGGER = logging.getLogger("example")
+# if DEBUG:
+#     LOGGER.setLevel(logging.DEBUG)
+# else:
+#     LOGGER.setLevel(logging.INFO)
+# sh = logging.StreamHandler(sys.stdout)
+# sh.setLevel(logging.DEBUG)
+# sh.setFormatter(
+#     logging.Formatter(
+#         fmt="%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s",
+#         datefmt="%Y-%m-%d %H:%M:%S",
+#     )
+# )
+# LOGGER.addHandler(sh)
 
 SERVER_HOST = os.getenv("SERVER_HOST")

@@ -1,4 +1,4 @@
-from typing import Any, Callable, ClassVar, Coroutine, Dict, List, Optional, Sequence, Type, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Sequence, Type, Union
 
 from fastapi import FastAPI
 from fastapi.datastructures import Default
@@ -7,21 +7,21 @@ from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute
+from starlette.types import ASGIApp
 
 from fast_tmp.amis_router import AmisRouter
-from fast_tmp.common import SITE
-from fast_tmp.utils.model import get_model_from_str
+from fast_tmp.schemas import PermissionPageType, PermissionSchema
 
 
 class AmisAPI(FastAPI):
-    permissions: ClassVar[Dict[str, bool]] = {}
+    permission: PermissionSchema
 
     def __init__(
         self,
         *,
         debug: bool = False,
+        title: str,
         routes: Optional[List[BaseRoute]] = None,
-        title: str = "FastAPI",
         description: str = "",
         version: str = "0.1.0",
         openapi_url: Optional[str] = "/openapi.json",
@@ -51,7 +51,12 @@ class AmisAPI(FastAPI):
         include_in_schema: bool = True,
         **extra: Any,
     ) -> None:
-        super().__init__(**locals())
+        los = locals()
+        los.pop("self")
+        super().__init__(**los)
+        self.permission = PermissionSchema(
+            label=title, codename=None, type=PermissionPageType.route
+        )
 
     def include_router(
         self,
@@ -66,7 +71,7 @@ class AmisAPI(FastAPI):
         default_response_class: Type[Response] = Default(JSONResponse),
         callbacks: Optional[List[BaseRoute]] = None,
     ) -> None:
-        AmisAPI.permissions.update(router.permissions)
+        self.permission.children.append(router.permission)
         self.router.include_router(
             router,
             prefix=prefix,
@@ -79,9 +84,14 @@ class AmisAPI(FastAPI):
             callbacks=callbacks,
         )
 
-    async def registe_permission(self):
-        Permission = get_model_from_str("Permission")
-        for k, v in AmisAPI.permissions.items():
-            await Permission.get_or_create(
-                codename=k, defaults={"model": v, "label": k.replace("_", " ")}
-            )
+    # async def registe_permission(self):
+    #     Permission = get_model_from_str("Permission")
+    #     for k, v in AmisAPI.permissions.items():
+    #         await Permission.get_or_create(
+    #             codename=k, defaults={"model": v, "label": k.replace("_", " ")}
+    #         )
+
+    def mount(self, path: str, app: Union["AmisAPI", ASGIApp], name: str = None) -> None:
+        self.router.mount(path, app=app, name=name)
+        if isinstance(app, AmisAPI):
+            self.permission.children.append(app.permission)

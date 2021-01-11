@@ -1,9 +1,9 @@
 import os
 import sys
 
-from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from fast_tmp.amis_app import AmisAPI
 from fast_tmp.api import app as b_app
 from fast_tmp.api.admin import admin_app
 from fast_tmp.conf import settings
@@ -18,8 +18,11 @@ def get_dir():
 DIR = get_dir()
 
 
-def create_fast_tmp_app():
-    fast_tmp_app = FastAPI(debug=settings.DEBUG)
+def create_fast_tmp_app() -> AmisAPI:
+    fast_tmp_app = AmisAPI(
+        title="fast_tmp_bk",
+        debug=settings.DEBUG,
+    )
     if settings.DEBUG:
         fast_tmp_app.mount(
             "/static", StaticFiles(directory=os.path.join(DIR, "static")), name="static"

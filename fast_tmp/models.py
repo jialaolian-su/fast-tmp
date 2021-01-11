@@ -6,38 +6,6 @@ from tortoise import Model, fields
 from fast_tmp.utils.password import make_password, verify_password
 
 
-class User(Model):
-    username = fields.CharField(max_length=128)
-    password = fields.CharField(max_length=255)
-    is_active = fields.BooleanField(default=True)
-    is_superuser = fields.BooleanField(default=False)
-
-    def set_password(self, raw_password: str):
-        """
-        设置密码
-        :param raw_password:
-        :return:
-        """
-        self.password = make_password(raw_password)
-
-    def verify_password(self, raw_password: str) -> bool:
-        """
-        验证密码
-        :param raw_password:
-        :return:
-        """
-        return verify_password(raw_password, self.password)
-
-    def has_perm(self, perm: "Permission"):
-        """
-        判定用户是否有权限
-        """
-        pass
-
-    def __str__(self):
-        return self.username
-
-
 class Permission(Model):
     label = fields.CharField(max_length=128)
     codename = fields.CharField(max_length=128, unique=True)
@@ -84,10 +52,47 @@ class Permission(Model):
         )
 
 
+class User(Model):
+    username = fields.CharField(max_length=128)
+    password = fields.CharField(max_length=255)
+    is_active = fields.BooleanField(default=True)
+    is_superuser = fields.BooleanField(default=False)
+    # groups = fields.ManyToManyField("fast_tmp.Group", related_name='users')
+
+    def set_password(self, raw_password: str):
+        """
+        设置密码
+        :param raw_password:
+        :return:
+        """
+        self.password = make_password(raw_password)
+
+    def verify_password(self, raw_password: str) -> bool:
+        """
+        验证密码
+        :param raw_password:
+        :return:
+        """
+        return verify_password(raw_password, self.password)
+
+    def has_perm(self, perm: "Permission"):
+        """
+        判定用户是否有权限
+        """
+        pass
+
+    async def get_perms(self):
+        permissions = await Permission.filter(groups__users=self.pk)
+        return permissions
+
+    def __str__(self):
+        return self.username
+
+
 class Group(Model):
     label = fields.CharField(max_length=128)
-    users = fields.ManyToManyField("fast_tmp.User")
-    permissions = fields.ManyToManyField("fast_tmp.Permission")
+    permissions = fields.ManyToManyField("fast_tmp.Permission", related_name="groups")
+    users = fields.ManyToManyField("fast_tmp.User", related_name="groups")
 
     def __str__(self):
         return self.label
