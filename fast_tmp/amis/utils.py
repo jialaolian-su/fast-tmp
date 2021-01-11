@@ -2,8 +2,16 @@ from typing import List, Tuple, Type
 
 from pydantic.main import BaseModel
 from pydantic.schema import schema
+from tortoise import Model
+from tortoise.fields import BigIntField, IntField, SmallIntField
+from tortoise.fields.data import (
+    CharEnumFieldInstance,
+    CharField,
+    DatetimeField,
+    IntEnumFieldInstance,
+)
 
-from fast_tmp.amis.schema.forms import Column
+from fast_tmp.amis.schema.forms import AbstractControl, Column
 from fast_tmp.amis.schema.forms.enums import ControlEnum, FormWidgetSize, ItemModel
 from fast_tmp.amis.schema.forms.widgets import (
     Control,
@@ -141,7 +149,7 @@ def get_columns_from_model(
     add_type: bool = False,
     extra_fields=None,
     exclude_readonly: bool = False,
-):
+) -> List[Column]:
     """
     从pydantic_queryset_creator创建的schema获取字段
     extra_field:额外的自定义字段

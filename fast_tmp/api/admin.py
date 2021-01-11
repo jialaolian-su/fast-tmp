@@ -11,6 +11,7 @@ from typing import List
 
 from fastapi import Depends
 
+from fast_tmp.amis.utils import get_columns_from_model
 from fast_tmp.amis_router import AmisRouter
 from fast_tmp.depends import get_current_user
 from fast_tmp.models import Group, Permission, User

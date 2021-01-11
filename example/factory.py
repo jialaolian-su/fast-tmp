@@ -5,7 +5,6 @@ from example import rearq
 from fast_tmp.amis_app import AmisAPI
 from fast_tmp.conf import settings
 from starlette.middleware.cors import CORSMiddleware
-from fast_tmp import factory
 from tortoise import Tortoise
 
 from fast_tmp.redis import AsyncRedisUtil
@@ -39,8 +38,13 @@ def init_app(main_app: Starlette):
 
 def create_app() -> AmisAPI:
     app = AmisAPI(title='fast_tmp example',debug=settings.DEBUG)
+    Tortoise.init_models(settings.TORTOISE_ORM["apps"]["fast_tmp"]["models"], "fast_tmp")
+    from fast_tmp import factory
+    from .apps.api.routes.amis_html import router as amis_test_router
+
     r_app = factory.create_fast_tmp_app()
     app.mount(settings.FAST_TMP_URL, r_app)
+    app.include_router(amis_test_router)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
