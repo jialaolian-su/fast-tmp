@@ -1,7 +1,7 @@
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload, subqueryload, joinedload, sessionmaker
+from sqlalchemy.orm import selectinload, subqueryload, joinedload
 
-from example.db import SessionLocal
+from fast_tmp.db import SessionLocal
 from fast_tmp.models import User
 from sqlalchemy.future import select
 

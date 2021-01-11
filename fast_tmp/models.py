@@ -57,6 +57,7 @@ class Permission(Base):
     id = Column(Integer, primary_key=True)
     label = Column(String(128))
     codename = Column(String(128), unique=True)
+    parent_codename = Column(String(128), unique=True)
 
     def __str__(self):
         return self.label

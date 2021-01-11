@@ -9,7 +9,7 @@ from fastapi.types import DecoratedCallable
 from fastapi.utils import get_value_or_default
 from starlette import routing
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse, Response
+from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute
 from starlette.routing import Mount as Mount  # noqa
 from starlette.types import ASGIApp
@@ -24,7 +24,7 @@ from fast_tmp.utils.urls import get_route_url
 
 class AmisRouter(routing.Router):
     page: Page
-    permissions: ClassVar[Dict[str, bool]] = {}
+    permissions: Dict[str, bool] = {}
 
     def __init__(
         self,

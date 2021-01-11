@@ -27,6 +27,8 @@ redis = "^3.5.3"
 pydantic-sqlalchemy = "^0.0.8"
 python-multipart = "^0.0.5"
 sentry-sdk = "^0.19.5"
+python-jose = "^3.2.0"
+passlib = "^1.7.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
