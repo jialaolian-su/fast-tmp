@@ -7,3 +7,8 @@
 @Software: PyCharm
 @info    :
 """
+from rearq import ReArq
+
+from example import settings
+
+rearq = ReArq(**settings.REARQ,)

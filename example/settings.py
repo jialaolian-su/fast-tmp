@@ -20,11 +20,10 @@ from sentry_sdk.integrations.redis import RedisIntegration
 
 dotenv.load_dotenv()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_URL =os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 DEBUG = os.getenv("DEBUG") == "True"
 PROJECT_CODE = "AUDIT"
 SECRET_KEY = "asdfadagre"
-
 
 SERVER_URL = os.getenv("SERVER_URL")
 
@@ -38,7 +37,34 @@ sentry_sdk.init(
     integrations=[RedisIntegration()],
 )
 
+DB_HOST = os.getenv("DB_HOST", )
+DB_PORT = os.getenv("DB_PORT", 3306)
+DB_USER = os.getenv("DB_USER", 'example')
+DB_NAME = os.getenv("DB_NAME", 'example2')
+DB_PASSWORD = os.getenv("DB_PASSWORD", 'mnbvcxz123')
 
+TORTOISE_ORM = {
+    "connections": {
+        "default": {
+            "engine": "tortoise.backends.mysql",
+            "credentials": {
+                "host": DB_HOST,
+                "port": DB_PORT,
+                "user": DB_USER,
+                "password": DB_PASSWORD,
+                "database": DB_NAME,
+                "echo": os.getenv("DB_ECHO") == "True",
+                "maxsize": 10,
+            },
+        },
+    },
+    "apps": {
+        "fast_tmp": {
+            "models": ["example.models", "aerich.models", "fast_tmp.models"],
+            "default_connection": "default",
+        },
+    },
+}
 
 REDIS = {
     "host": REDIS_HOST,
@@ -68,7 +94,6 @@ sh.setFormatter(
         fmt="%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-
 )
 LOGGER.addHandler(sh)
 

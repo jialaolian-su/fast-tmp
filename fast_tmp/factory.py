@@ -4,7 +4,9 @@ import sys
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from fast_tmp.api.admin import admin_app
 from fast_tmp.conf import settings
+from fast_tmp.api import app as b_app
 
 paths = sys.path
 
@@ -28,6 +30,8 @@ def create_fast_tmp_app():
             StaticFiles(directory=os.path.join(settings.BASE_DIR, settings.STATIC_ROOT)),
             name="static",
         )
+    fast_tmp_app.include_router(b_app)
+    fast_tmp_app.include_router(admin_app)
     # fast_tmp_app.include_router(auth_router)
     # fast_tmp_app.include_router(auth2_router)
     # fast_tmp_app.add_exception_handler(

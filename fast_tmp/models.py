@@ -1,30 +1,17 @@
 from typing import Type
 
 from pydantic import BaseModel
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
 
 from fast_tmp.utils.password import make_password, verify_password
 
-Base = declarative_base()
+from tortoise import Model, fields
 
 
-class ControlSer(BaseModel):
-    label: str
-    name: str
-    type: str
-
-
-class User(Base):
-    __tablename__ = "user"
-    id = Column(Integer, primary_key=True, info={"kwargs": "ddd"})
-    username = Column(String(128), unique=True)
-    password = Column(
-        String(200),
-    )
-    is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=True)
+class User(Model):
+    username = fields.CharField(max_length=128)
+    password = fields.CharField(max_length=255)
+    is_active = fields.BooleanField(default=True)
+    is_superuser = fields.BooleanField(default=False)
 
     def set_password(self, raw_password: str):
         """
@@ -52,20 +39,17 @@ class User(Base):
         return self.username
 
 
-class Permission(Base):
-    __tablename__ = "permission"
-    id = Column(Integer, primary_key=True)
-    label = Column(String(128))
-    codename = Column(String(128), unique=True)
-    parent_codename = Column(String(128), unique=True)
+class Permission(Model):
+    label = fields.CharField(max_length=128)
+    codename = fields.CharField(max_length=128, unique=True)
 
     def __str__(self):
         return self.label
 
     @classmethod
     def make_permission(
-        cls,
-        model: Type[Base],
+            cls,
+            model: Type[BaseModel],
     ):
         """
         生成model对应的权限
@@ -101,40 +85,16 @@ class Permission(Base):
         )
 
 
-class Group(Base):
-    __tablename__ = "group"
-    id = Column(Integer, primary_key=True)
-    label = Column(
-        String(128),
-    )
-
-    users = relationship(
-        "User",
-        secondary=Table(
-            "group_user",
-            Base.metadata,
-            Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
-            Column("group_id", Integer, ForeignKey("group.id"), primary_key=True),
-        ),
-        backref="groups",
-    )
-    permissions = relationship(
-        "Permission",
-        secondary=Table(
-            "group_permission",
-            Base.metadata,
-            Column("group_id", Integer, ForeignKey("group.id"), primary_key=True),
-            Column("permission_id", Integer, ForeignKey("permission.id"), primary_key=True),
-        ),
-        backref="permisions",
-    )
+class Group(Model):
+    label = fields.CharField(max_length=128)
+    users = fields.ManyToManyField("fast_tmp.User")
+    permissions = fields.ManyToManyField("fast_tmp.Permission")
 
     def __str__(self):
         return self.label
 
 
-class AdminLog(Base):
-    __tablename__ = "adminlog"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"))
-    user = relationship("User")
+class Config(Model):
+    name = fields.CharField(max_length=64)
+    key = fields.CharField(max_length=64, unique=True)
+    value = fields.JSONField()

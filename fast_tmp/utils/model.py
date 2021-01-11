@@ -15,7 +15,7 @@ def get_all_models() -> Iterator[TModel]:
             yield model_item
 
 
-def get_model_from_str(model_name: str, app_label: str = "models") -> Type[TModel]:
+def get_model_from_str(model_name: str, app_label: str = "fast_tmp") -> Type[TModel]:
     s = model_name.split(".")
     if len(s) == 2:
         app_label, model_name = s
