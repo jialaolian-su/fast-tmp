@@ -1,8 +1,3 @@
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload, subqueryload, joinedload
-
-from fast_tmp.models import User
-
 from example.factory import create_app
 app=create_app()
 
