@@ -1,10 +1,9 @@
 from typing import Type
 
 from pydantic import BaseModel
+from tortoise import Model, fields
 
 from fast_tmp.utils.password import make_password, verify_password
-
-from tortoise import Model, fields
 
 
 class User(Model):
@@ -48,8 +47,8 @@ class Permission(Model):
 
     @classmethod
     def make_permission(
-            cls,
-            model: Type[BaseModel],
+        cls,
+        model: Type[BaseModel],
     ):
         """
         生成model对应的权限

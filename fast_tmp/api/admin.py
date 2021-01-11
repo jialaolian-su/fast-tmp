@@ -9,13 +9,14 @@
 """
 
 from fast_tmp.amis_router import AmisRouter
-
 from fast_tmp.models import User
 
 admin_app = AmisRouter(prefix="/admin")
 
 
-@admin_app.post("/user", )
+@admin_app.post(
+    "/user",
+)
 async def create_user(username: str, password: str):
     user = User(username=username)
     user.set_password(password)

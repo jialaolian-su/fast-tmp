@@ -1,7 +1,9 @@
 from typing import Optional
+
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
+
 from fast_tmp.conf import settings
 from fast_tmp.models import User
 from fast_tmp.utils.token import decode_access_token

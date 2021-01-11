@@ -4,9 +4,9 @@ import sys
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from fast_tmp.api import app as b_app
 from fast_tmp.api.admin import admin_app
 from fast_tmp.conf import settings
-from fast_tmp.api import app as b_app
 
 paths = sys.path
 
