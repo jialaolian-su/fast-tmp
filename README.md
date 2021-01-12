@@ -14,6 +14,17 @@ note:项目正在清理tortoise-orm中。
 2. 使用alembic初始化数据库（注意，执行之前需要添加环境变量：FASTAPI_SETTINGS_MODULE=example.settings）
 3. 启动main.py
 
+## 已完成功能
+
+1. 完整的权限管理和基于权限的动态生成路由（由于amis的bug，需要修复）
+2. 路由和视图结合，基于amis，可根据amis的schema堆叠页面功能，生成对应的业务页面。（目前不考虑美观问题，等项目主要功能完成之后再考虑美观问题）
+3. 基于fastapi重新开发了AmisRouter和AmisApi。
+
+## 路由设计逻辑
+AmisApi：定义一个app，一般为一个项目的根节点，再通过mount加载fast_tmp等其他子项目
+AmisRouter:定义一个页面app，每一个router都是一个路由节点或者页面。
+Widget:每一个页面上的控件（大多数时候为对应接口提供）
+site接口根据路由树生成对应的路由，前端可根据路由加载导航和页面的视图。
 
 ## 目标
 
