@@ -11,6 +11,9 @@ class Message(Model):
     error_info = fields.IntEnumField(Status)
     error_info_str = fields.CharEnumField(Status2)
     message_user = fields.ForeignKeyField("fast_tmp.MessageUser")
+    t1 = fields.JSONField()
+
+
 
 
 class Tournament(Model):

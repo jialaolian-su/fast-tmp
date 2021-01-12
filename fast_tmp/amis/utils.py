@@ -24,11 +24,11 @@ from fast_tmp.amis.schema.forms.widgets import (
 
 
 def get_coulmns_from_pqc(
-    list_schema: Type[BaseModel],
-    include: Tuple[str, ...] = None,
-    exclude: Tuple[str, ...] = None,
-    add_type=False,
-    extra_fields=None,
+        list_schema: Type[BaseModel],
+        include: Tuple[str, ...] = None,
+        exclude: Tuple[str, ...] = None,
+        add_type=False,
+        extra_fields=None,
 ):
     """
     从pydantic_queryset_creator创建的schema获取字段
@@ -79,10 +79,10 @@ def pf_2_jsf(field_type: str) -> str:
 
 # fixme:等待修复
 def get_coulmns_from_pmc(
-    model_schema: Type[BaseModel],
-    include: Tuple[str, ...] = None,
-    exclude: Tuple[str, ...] = None,
-    add_type: bool = False,
+        model_schema: Type[BaseModel],
+        include: Tuple[str, ...] = None,
+        exclude: Tuple[str, ...] = None,
+        add_type: bool = False,
 ):
     """
     从pydantic_model_creator创建的schema获取字段
@@ -111,7 +111,7 @@ def get_coulmns_from_pmc(
 
 # fixme:等待修复
 def get_columns_from_str(
-    fields: List[str], include: List[str] = None, exclude: List[str] = None, add_type: bool = False
+        fields: List[str], include: List[str] = None, exclude: List[str] = None, add_type: bool = False
 ) -> List[Column]:
     res = []
     for field in fields:
@@ -143,12 +143,12 @@ def _get_base_attr(field_type) -> dict:
 
 
 def get_columns_from_model(
-    model: Type[Model],
-    include: List[str] = None,
-    exclude: List[str] = None,
-    add_type: bool = False,
-    extra_fields=None,
-    exclude_readonly: bool = False,
+        model: Type[Model],
+        include: List[str] = None,
+        exclude: List[str] = None,
+        add_type: bool = False,
+        extra_fields=None,
+        exclude_readonly: bool = False,
 ) -> List[Column]:
     """
     从pydantic_queryset_creator创建的schema获取字段
@@ -177,17 +177,17 @@ def get_columns_from_model(
                     res.append(
                         NumberItem(
                             min=field_type.kwargs.get("min", None)
-                            or field_type.constraints.get("ge"),
+                                or field_type.constraints.get("ge"),
                             max=field_type.kwargs.get("max", None)
-                            or field_type.constraints.get("le"),
+                                or field_type.constraints.get("le"),
                             precision=field_type.kwargs.get("precision", 0),
                             step=field_type.kwargs.get("step", 1),
                             **_get_base_attr(field_type),
                             validations={
                                 "minimum": field_type.kwargs.get("min", None)
-                                or field_type.constraints.get("ge"),
+                                           or field_type.constraints.get("ge"),
                                 "maximum": field_type.kwargs.get("max", None)
-                                or field_type.constraints.get("le"),
+                                           or field_type.constraints.get("le"),
                             },
                         ),
                     )
@@ -209,7 +209,7 @@ def get_columns_from_model(
                             **_get_base_attr(field_type),
                             validations={
                                 "maxLength": field_type.kwargs.get("maxLength", None)
-                                or field_type.max_length,
+                                             or field_type.max_length,
                             },
                         )
                     )
@@ -222,8 +222,9 @@ def get_columns_from_model(
                         inputFormat=field_type.kwargs.get("inputFormat", "YYYY-MM-DD HH:mm:ss"),
                     )
                 )
-            elif isinstance(field_type, CharEnumFieldInstance):
+            elif isinstance(field_type, CharEnumFieldInstance):  # 静态枚举
                 print(field_type.enum_type)
+            # 继续增加其他类型字段
         else:
             res.append(Column(name=field, label=field_type.kwargs.get("verbose_name", field)))
     return res
