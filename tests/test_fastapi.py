@@ -7,7 +7,7 @@
 @Software: PyCharm
 @info    :
 """
-from fastapi import FastAPI, APIRouter
+from fastapi import APIRouter, FastAPI
 
 app = FastAPI()
 
@@ -17,7 +17,7 @@ async def test():
     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app)

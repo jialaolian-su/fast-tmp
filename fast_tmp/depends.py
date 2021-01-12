@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -9,7 +9,6 @@ from fast_tmp.models import User
 from fast_tmp.utils.token import decode_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.FAST_TMP_URL + "/token")
-
 app = FastAPI()
 
 
@@ -57,3 +56,23 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+
+def get_user_has_perms(perms: List[Any]):
+    """
+    判定用户是否具有相关权限
+    :param perms:
+    :return:
+    """
+
+    async def user_has_perms(user: User = Depends(get_current_active_user)):
+        if await user.has_perms(perms):
+            return user
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+    return user_has_perms

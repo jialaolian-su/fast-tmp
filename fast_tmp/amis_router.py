@@ -1,7 +1,6 @@
-import inspect
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Sequence, Set, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type, Union
 
-from fastapi import APIRouter, Depends, params, routing
+from fastapi import APIRouter, params, routing
 from fastapi.datastructures import Default, DefaultPlaceholder
 from fastapi.encoders import DictIntStrAny, SetIntStr
 from fastapi.routing import APIRoute, APIWebSocketRoute
@@ -14,18 +13,17 @@ from starlette.routing import BaseRoute
 from starlette.routing import Mount as Mount  # noqa
 from starlette.types import ASGIApp
 
-from fast_tmp.amis.func import need_permission, need_permission2
 from fast_tmp.amis.schema.abstract_schema import BaseAmisModel
 from fast_tmp.amis.schema.page import Page
 from fast_tmp.responses import AmisResponse
-from fast_tmp.schemas import PermissionPageType, PermissionSchema
+from fast_tmp.schemas import PermissionPageType, PermissionSchema, SiteSchema
 from fast_tmp.templates_app import templates
 from fast_tmp.utils.urls import get_route_url
 
 
 class AmisRouter(routing.Router):
     page: Page
-    permission: PermissionSchema
+    site_schema: SiteSchema
 
     def __init__(
         self,
@@ -33,6 +31,7 @@ class AmisRouter(routing.Router):
         prefix: str = "",
         title: Optional[str] = None,
         tags: Optional[List[str]] = None,
+        site_schema: Optional[SiteSchema] = None,
         dependencies: Optional[Sequence[params.Depends]] = None,
         default_response_class: Type[Response] = AmisResponse,
         responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
@@ -54,18 +53,23 @@ class AmisRouter(routing.Router):
             on_startup=on_startup,  # type: ignore # in Starlette
             on_shutdown=on_shutdown,  # type: ignore # in Starlette
         )
-        if prefix:
-            assert prefix.startswith("/"), "A path prefix must start with '/'"
-            assert not prefix.endswith(
-                "/"
-            ), "A path prefix must not end with '/', as the routes will start with '/'"
+        if site_schema:
+            self.site_schema = site_schema
+            prefix = site_schema.prefix
+            if prefix:
+                assert prefix.startswith("/"), "A path prefix must start with '/'"
+                assert not prefix.endswith(
+                    "/"
+                ), "A path prefix must not end with '/', as the routes will start with '/'"
         else:
+            if not title and not prefix:
+                raise ValueError("not title nor prefix is null!")
             if not title:
-                raise ValueError("Both prefix and title can not be all null")  # 不能两个值都为空
-        if not title:
-            title = prefix[1:].replace("/", "")
+                title = prefix[1:].replace("/", "")
+            self.site_schema = SiteSchema(
+                label=title, codename=None, type=PermissionPageType.page, prefix=prefix
+            )
         self.page = Page(body=[])
-        self.permission = PermissionSchema(label=title, codename=None, type=PermissionPageType.page)
         self.prefix = prefix
         self.route_url = get_route_url(prefix)
         self.tags: List[str] = tags or []
@@ -181,10 +185,10 @@ class AmisRouter(routing.Router):
         if view:
             self.page.body.append(view)
         if permission_model:
-            self.permission.children.append(permission_model)
+            self.site_schema.children.append(permission_model)
         else:
-            self.permission.children.append(
-                PermissionSchema(label=summary or path.replace("/", ""))
+            self.site_schema.children.append(
+                PermissionSchema(label=summary or path.replace("/", ""), prefix=path)
             )
 
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
@@ -213,20 +217,6 @@ class AmisRouter(routing.Router):
                 name=name,
                 callbacks=callbacks,
             )
-            if permission_model:  # fixme:实用化该功能
-                x = inspect.signature(func)
-                p = x.parameters
-                s = []
-                for k, v in p.items():
-                    if id(need_permission) == id(v.default.dependency):
-                        v = inspect.Parameter(
-                            name=v.name,
-                            kind=v.kind,
-                            default=Depends(need_permission2),
-                            annotation=v.annotation,
-                        )
-                    s.append(v)
-                func.__signature__ = inspect.Signature(s)
             return func
 
         return decorator
@@ -780,11 +770,13 @@ class AmisRouter(routing.Router):
         )
 
 
+# todo:需要增加权限判定
 class HtmlTemplate:
     def __init__(self, router: AmisRouter):
         self.router = router
 
     # todo:学习如何给jinja2增加缓存功能
+    # todo:增加权限判定
     def __call__(
         self,
         request: Request,

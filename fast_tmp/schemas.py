@@ -8,7 +8,7 @@
 @info    :
 """
 from enum import Enum
-from typing import List, Type
+from typing import List, Optional, Type, Union
 
 from pydantic.main import BaseModel
 
@@ -23,4 +23,9 @@ class PermissionSchema(BaseModel):
     label: str
     codename: str = None
     type: PermissionPageType = PermissionPageType.widget
-    children: List[Type["PermissionSchema"]] = []
+    children: List[Union["PermissionSchema", "SiteSchema"]] = []
+    prefix: str = ""  # 基础理由
+
+
+class SiteSchema(PermissionSchema):
+    icon: Optional[str]

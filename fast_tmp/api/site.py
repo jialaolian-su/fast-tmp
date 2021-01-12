@@ -1,5 +1,3 @@
-from fastapi import APIRouter
+from fast_tmp.amis_router import AmisRouter
 
-from fast_tmp.depends import get_current_user
-
-router = APIRouter(prefix="/base")
+router = AmisRouter(prefix="/base")

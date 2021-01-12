@@ -10,7 +10,7 @@ from starlette.routing import BaseRoute
 from starlette.types import ASGIApp
 
 from fast_tmp.amis_router import AmisRouter
-from fast_tmp.schemas import PermissionPageType, PermissionSchema
+from fast_tmp.schemas import PermissionPageType, PermissionSchema, SiteSchema
 
 
 class AmisAPI(FastAPI):
@@ -20,8 +20,9 @@ class AmisAPI(FastAPI):
         self,
         *,
         debug: bool = False,
-        title: str,
+        title: str = "FastAPI",
         routes: Optional[List[BaseRoute]] = None,
+        site_schema: Optional[SiteSchema] = None,
         description: str = "",
         version: str = "0.1.0",
         openapi_url: Optional[str] = "/openapi.json",
@@ -54,9 +55,10 @@ class AmisAPI(FastAPI):
         los = locals()
         los.pop("self")
         super().__init__(**los)
-        self.permission = PermissionSchema(
-            label=title, codename=None, type=PermissionPageType.route
-        )
+        if site_schema:
+            self.site_schema = site_schema
+        else:
+            self.site_schema = SiteSchema(label=title, codename=None, type=PermissionPageType.route)
 
     def include_router(
         self,
@@ -71,8 +73,9 @@ class AmisAPI(FastAPI):
         default_response_class: Type[Response] = Default(JSONResponse),
         callbacks: Optional[List[BaseRoute]] = None,
     ) -> None:
-        if isinstance(router,AmisRouter):
-            self.permission.children.append(router.permission)
+        if isinstance(router, AmisRouter):
+            self.site_schema.children.append(router.site_schema)
+            router.site_schema.prefix += prefix
         self.router.include_router(
             router,
             prefix=prefix,
@@ -85,14 +88,8 @@ class AmisAPI(FastAPI):
             callbacks=callbacks,
         )
 
-    # async def registe_permission(self):
-    #     Permission = get_model_from_str("Permission")
-    #     for k, v in AmisAPI.permissions.items():
-    #         await Permission.get_or_create(
-    #             codename=k, defaults={"model": v, "label": k.replace("_", " ")}
-    #         )
-
     def mount(self, path: str, app: Union["AmisAPI", ASGIApp], name: str = None) -> None:
         self.router.mount(path, app=app, name=name)
         if isinstance(app, AmisAPI):
-            self.permission.children.append(app.permission)
+            app.site_schema.prefix = path + app.site_schema.prefix
+            self.site_schema.children.append(app.site_schema)
