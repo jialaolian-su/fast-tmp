@@ -24,7 +24,7 @@ def get_site_from_permissionschema(
     if node.type == PermissionPageType.widget:
         if not node.codename or node.codename in user_codename or user.is_superuser:
             # fixme:临时措施
-            if node.prefix == "/html":
+            if node.url == "/schema_api":
                 return False
             return True
         else:
@@ -32,9 +32,7 @@ def get_site_from_permissionschema(
     else:
         if node.children:
             res = [
-                get_site_from_permissionschema(
-                    child_node, user_codename, base_url + node.prefix, user
-                )
+                get_site_from_permissionschema(child_node, user_codename, base_url + node.url, user)
                 for child_node in node.children
             ]
             if any(res):
@@ -43,7 +41,11 @@ def get_site_from_permissionschema(
                         "label": node.label,
                         "type": "page",
                         "icon": node.icon,
-                        "url": base_url + node.prefix,
+                        "url": base_url + node.url,
+                        "schemaApi": base_url + node.url + node.schema_api,
+                        "rewrite": node.rewrite,
+                        "visable": node.visable,
+                        "redirect": node.redirect,
                     }
                 else:
                     if any(
@@ -56,7 +58,7 @@ def get_site_from_permissionschema(
                             "type": "page",
                             "label": node.label,
                             "icon": node.icon,
-                            "url": base_url + node.prefix,
+                            "url": base_url + node.url,
                             "children": res,
                         }
                     else:

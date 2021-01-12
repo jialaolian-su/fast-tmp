@@ -75,7 +75,7 @@ class AmisAPI(FastAPI):
     ) -> None:
         if isinstance(router, AmisRouter):
             self.site_schema.children.append(router.site_schema)
-            router.site_schema.prefix += prefix
+            router.site_schema.url += prefix
         self.router.include_router(
             router,
             prefix=prefix,
@@ -91,5 +91,5 @@ class AmisAPI(FastAPI):
     def mount(self, path: str, app: Union["AmisAPI", ASGIApp], name: str = None) -> None:
         self.router.mount(path, app=app, name=name)
         if isinstance(app, AmisAPI):
-            app.site_schema.prefix = path + app.site_schema.prefix
+            app.site_schema.url = path
             self.site_schema.children.append(app.site_schema)

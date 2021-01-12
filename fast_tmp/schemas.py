@@ -8,7 +8,7 @@
 @info    :
 """
 from enum import Enum
-from typing import List, Optional, Type, Union
+from typing import List, Optional, Union
 
 from pydantic.main import BaseModel
 
@@ -24,8 +24,13 @@ class PermissionSchema(BaseModel):
     codename: str = None
     type: PermissionPageType = PermissionPageType.widget
     children: List[Union["PermissionSchema", "SiteSchema"]] = []
-    prefix: str = ""  # 基础理由
+    url: str = ""  # 基础理由
 
 
 class SiteSchema(PermissionSchema):
     icon: Optional[str]
+    schema_api: str = "/schema_api"
+    link: Optional[str]
+    redirect: Optional[str]
+    rewrite: bool = False
+    visable: bool = True

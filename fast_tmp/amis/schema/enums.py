@@ -54,6 +54,7 @@ class TypeEnum(str, Enum):
     operation = "operation"  # 这是啥？？
     hbox = "hbox"
     nav = "nav"
+    app = "app"
 
 
 class ButtonSize(

@@ -1,23 +1,21 @@
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type, Union
 
-from fastapi import APIRouter, params, routing
+from fastapi import APIRouter, Depends, params, routing
 from fastapi.datastructures import Default, DefaultPlaceholder
 from fastapi.encoders import DictIntStrAny, SetIntStr
 from fastapi.routing import APIRoute, APIWebSocketRoute
 from fastapi.types import DecoratedCallable
 from fastapi.utils import get_value_or_default
 from starlette import routing
-from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
+from starlette.routing import Mount  # noqa
 from starlette.routing import BaseRoute
-from starlette.routing import Mount as Mount  # noqa
 from starlette.types import ASGIApp
 
 from fast_tmp.amis.schema.abstract_schema import BaseAmisModel
 from fast_tmp.amis.schema.page import Page
 from fast_tmp.responses import AmisResponse
 from fast_tmp.schemas import PermissionPageType, PermissionSchema, SiteSchema
-from fast_tmp.templates_app import templates
 from fast_tmp.utils.urls import get_route_url
 
 
@@ -55,7 +53,7 @@ class AmisRouter(routing.Router):
         )
         if site_schema:
             self.site_schema = site_schema
-            prefix = site_schema.prefix
+            prefix = site_schema.url
             if prefix:
                 assert prefix.startswith("/"), "A path prefix must start with '/'"
                 assert not prefix.endswith(
@@ -67,7 +65,7 @@ class AmisRouter(routing.Router):
             if not title:
                 title = prefix[1:].replace("/", "")
             self.site_schema = SiteSchema(
-                label=title, codename=None, type=PermissionPageType.page, prefix=prefix
+                label=title, codename=None, type=PermissionPageType.page, url=prefix
             )
         self.page = Page(body=[])
         self.prefix = prefix
@@ -82,7 +80,7 @@ class AmisRouter(routing.Router):
         self.route_class = route_class
         self.default_response_class = default_response_class
         self.get(
-            "/html",
+            "/schema_api",
         )(HtmlTemplate(self))
 
     def add_api_route(
@@ -182,13 +180,15 @@ class AmisRouter(routing.Router):
         name: Optional[str] = None,
         callbacks: Optional[List[BaseRoute]] = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
+        if not path:
+            raise ValueError("path can't be null or ''")
         if view:
             self.page.body.append(view)
         if permission_model:
             self.site_schema.children.append(permission_model)
         else:
             self.site_schema.children.append(
-                PermissionSchema(label=summary or path.replace("/", ""), prefix=path)
+                PermissionSchema(label=summary or path.replace("/", ""), url=path)
             )
 
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
@@ -770,21 +770,14 @@ class AmisRouter(routing.Router):
         )
 
 
+from fast_tmp.depends import get_current_active_user
+
+
 # todo:需要增加权限判定
 class HtmlTemplate:
     def __init__(self, router: AmisRouter):
         self.router = router
 
-    # todo:学习如何给jinja2增加缓存功能
-    # todo:增加权限判定
-    def __call__(
-        self,
-        request: Request,
-    ):
-        return templates.TemplateResponse(
-            "admin/crud.html",
-            {
-                "request": request,
-                "page": self.router.page.json(),
-            },  # fixme:ujson or orjson
-        )
+    # fixme:考虑缓存
+    def __call__(self, user=Depends(get_current_active_user)):
+        return self.router.page.dict()
