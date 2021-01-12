@@ -71,7 +71,8 @@ class AmisAPI(FastAPI):
         default_response_class: Type[Response] = Default(JSONResponse),
         callbacks: Optional[List[BaseRoute]] = None,
     ) -> None:
-        self.permission.children.append(router.permission)
+        if isinstance(router,AmisRouter):
+            self.permission.children.append(router.permission)
         self.router.include_router(
             router,
             prefix=prefix,

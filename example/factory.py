@@ -6,7 +6,6 @@ from fast_tmp.amis_app import AmisAPI
 from fast_tmp.conf import settings
 from starlette.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
-
 from fast_tmp.redis import AsyncRedisUtil
 
 
@@ -37,7 +36,7 @@ def init_app(main_app: Starlette):
 
 
 def create_app() -> AmisAPI:
-    app = AmisAPI(title='fast_tmp example',debug=settings.DEBUG)
+    app = AmisAPI(title='fast_tmp example', debug=settings.DEBUG)
     Tortoise.init_models(settings.TORTOISE_ORM["apps"]["fast_tmp"]["models"], "fast_tmp")
     from fast_tmp import factory
     from .apps.api.routes.amis_html import router as amis_test_router
@@ -53,6 +52,7 @@ def create_app() -> AmisAPI:
         allow_headers=["*"],
     )
     # Sentry的插件
-    app.add_middleware(SentryAsgiMiddleware)
+    # app.add_middleware(SentryAsgiMiddleware)
+
     init_app(app)
     return app

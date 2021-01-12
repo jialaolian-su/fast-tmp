@@ -7,21 +7,13 @@
 @Software: PyCharm
 @info    :
 """
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
-from pydantic import HttpUrl
-from starlette import status
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from tortoise.contrib.pydantic import pydantic_model_creator
-
 from fast_tmp.amis.schema.actions import AjaxAction, DialogAction, DrawerAction
 from fast_tmp.amis.schema.buttons import Operation
 from fast_tmp.amis.schema.crud import CRUD
 from fast_tmp.amis.schema.enums import ButtonLevelEnum
 from fast_tmp.amis.schema.forms import Form
 from fast_tmp.amis.schema.frame import Dialog, Drawer
-from fast_tmp.amis.utils import get_coulmns_from_pmc, get_coulmns_from_pqc
+from fast_tmp.amis.utils import get_coulmns_from_pmc, get_coulmns_from_pqc, get_columns_from_model
 from fast_tmp.amis_router import AmisRouter
 from fast_tmp.conf import settings
 from example.models import Message
@@ -48,11 +40,11 @@ router = AmisRouter(prefix="/amis")
                                 body=Form(
                                     name="message_update",
                                     api="put:"
-                                    + settings.SERVER_URL
-                                    + router.prefix
-                                    + "/message/${id}",
+                                        + settings.SERVER_URL
+                                        + router.prefix
+                                        + "/message/${id}",
                                     initApi=settings.SERVER_URL + router.prefix + "/message/${id}",
-                                    controls=get_coulmns_from_pmc(message_schema, add_type=True),
+                                    controls=get_columns_from_model(Message, add_type=True),  # 测试这里
                                 ),
                             ),
                         ),

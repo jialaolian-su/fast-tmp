@@ -11,11 +11,11 @@ SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.EXPIRES_DELTA
 app = AmisRouter(title="fast_tmp")
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 
 
 @app.post("/token", response_class=JSONResponse)
-async def login_(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(

@@ -11,7 +11,7 @@ from tortoise.fields.data import (
     IntEnumFieldInstance,
 )
 
-from fast_tmp.amis.schema.forms import AbstractControl, Column
+from fast_tmp.amis.schema.forms import Column
 from fast_tmp.amis.schema.forms.enums import ControlEnum, FormWidgetSize, ItemModel
 from fast_tmp.amis.schema.forms.widgets import (
     Control,

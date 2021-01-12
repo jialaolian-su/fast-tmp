@@ -13,7 +13,6 @@ import os
 import sys
 from typing import Optional
 import sentry_sdk
-# import sentry_sdk
 import os
 import dotenv
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -31,11 +30,11 @@ REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
-sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
-    environment=os.getenv("ENVIRONMENT", "development"),
-    integrations=[RedisIntegration()],
-)
+# sentry_sdk.init(
+#     dsn=os.getenv("SENTRY_DSN"),
+#     environment=os.getenv("ENVIRONMENT", "development"),
+#     integrations=[RedisIntegration()],
+# )
 
 DB_HOST = os.getenv("DB_HOST", )
 DB_PORT = os.getenv("DB_PORT", 3306)
